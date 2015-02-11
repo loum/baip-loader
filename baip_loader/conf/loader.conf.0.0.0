@@ -1,0 +1,53 @@
+# This the configuration file for the BAIP Loader project.
+#
+# Configuration uses the Python ConfigLoader module that follows
+# a structure similar to what you would find on Microsoft Windows INI files.
+#
+# The configuration file consists of sections, led by a "[section]" header
+# and followed by "name: value" entries.  For example:
+#
+# [section]
+# name: value
+#
+# "name: value" entries that begin with a "#" are the default values for
+# that particular setting.  This means that the code is hardwired with
+# that value.  To override, simply uncomment the existing "name: value"
+# pair and replace with your new value.  For example:
+#
+# [section]
+# #name: value
+# name: new value
+#
+# Here, the original "#name: value" has been left in place so you have
+# a quick reference to the default value.  But you don't have to do this
+# if you feel it clutters your view.
+
+# The "[ingest]" section contains configurable items around the BAIP
+# Loader ingest process.
+[ingest]
+# "thread_sleep" is the sleep period between "inbound_dir" polls for
+# new files.  Partial seconds accepted.
+#thread_sleep: 2.0
+
+
+# "inbound_dir" sets the source directory to read ingest files from
+inbound_dir: /var/tmp/baip-loader
+
+
+# "archive_dir" sets the target archive directory to store ingest files to
+# If missing, an attempt will be made to create this directory
+archive_dir: /var/tmp/baip-loader/archive
+
+
+[csiro]
+url_scheme:
+netloc:
+path:
+query:
+
+
+# The "ckan" section holds the token used by CKAN as the standard
+# authentication method to the API.  "api_key" is placed in the request
+# header.
+[ckan]
+api_key:
