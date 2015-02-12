@@ -1,43 +1,45 @@
 #!/usr/bin/python
-"""Load CSIRO data as per BAIP specs
-
-"""
 
 import os
-import inspect
 import sys
+import argparse
+import urlparse
 
-import daemoniser
 import baip_loader
 
 CONF = os.path.join(os.sep, 'etc', 'baip', 'conf', 'loader.conf')
+DESCRIPTION = """BAIP CSIRO Translation Tool"""
 
 
 def main():
     """Script entry point.
 
     """
-    service = daemoniser.Service()
-    service.loader.add_option('-f', '--file',
-                              dest='file',
-                              help='file to process inline (start only)')
-    service.loader.add_option('-i', '--inbound_dir',
-                              dest='inbound_dir',
-                              help='source directory')
-    script_name = os.path.basename(inspect.getfile(inspect.currentframe()))
-    service.check_args(script_name)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
+    parser.add_argument('-c',
+                        '--config-file',
+                        action='store',
+                        dest='config_file')
 
-    # Check if a filename was provided on the command line.
-    command_line_file = None
-    if service.options.file:
-        command_line_file = service.options.file
+    # Add sub-command support.
+    subparsers = parser.add_subparsers(help='commands')
 
-    inbound_dir = None
-    if service.options.inbound_dir:
-        inbound_dir = service.options.inbound_dir
+    # 'scrape' subcommand.
+    scrape_help = 'Pull data from CSIRO endpoint'
+    scrape_parser = subparsers.add_parser('scrape', help=scrape_help)
+    scrape_parser.set_defaults(func=scrape)
 
-    config_file = service.options.config
-    if config_file is None:
+    outfile_help = 'Override output filename'
+    scrape_parser.add_argument('-o',
+                               '--outfile',
+                               action='store',
+                               help=outfile_help,
+                               dest='outfile')
+
+    args = parser.parse_args()
+
+    config_file = args.config_file
+    if args.config_file is None:
         if os.path.exists(CONF):
             config_file = CONF
 
@@ -47,15 +49,22 @@ def main():
         conf = baip_loader.LoaderConfig(config_file)
         conf.parse_config()
 
-    # OK, start processing.
-    loaderd = baip_loader.LoaderDaemon(pidfile=service.pidfile,
-                                       filename=command_line_file,
-                                       inbound_dir=inbound_dir,
-                                       dry=service.dry,
-                                       batch=service.batch,
-                                       conf=conf)
+    args.func(args, conf)
 
-    service.launch_command(loaderd, script_name)
+
+def scrape(args, conf):
+    scraper = baip_loader.Loader()
+
+    schema = conf.csiro_url_scheme
+    netloc = conf.csiro_netloc
+    path = conf.csiro_path
+    uri = urlparse.urlunsplit((schema, netloc, path, None, None))
+    scraper.csiro_source_uri = uri
+
+    scraper.source()
+    if args.outfile is not None:
+        scraper.dump_source(args.outfile)
+
 
 if __name__ == '__main__':
     main()
