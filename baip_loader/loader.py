@@ -42,20 +42,36 @@ class Loader(object):
     def csiro_source_data(self, value):
         self._csiro_source_data = value
 
-    def source(self):
+    def source(self, filename=None):
         """Attempt to source CSIRO metadata.
+
+        If *filename* is provided, then file will be opened and contents
+        parsed.  Otherwise, an attempt will be made to connect to the
+        :attr:`csiro_source_uri` endpoint.
 
         .. note::
 
             The entire metadata set is stored in memory and can be
             accessed via the :attr:`csiro_source_data` attribute
 
-        """
-        msg = 'Sourcing data from {uri} ...'
-        log.debug(msg.format(uri=self.csiro_source_uri))
+        **Args:**
+            *filename*: override source endpoint with filename
 
-        url_obj = urllib2.urlopen(self.csiro_source_uri)
-        self.csiro_source_data = url_obj.read()
+        """
+        log.info('Sourcing data ...')
+
+        source = filename
+        if source is None:
+            source = self.csiro_source_uri
+            url_obj = urllib2.urlopen(self.csiro_source_uri)
+            self.csiro_source_data = url_obj.read()
+        else:
+            source_fh = open(source)
+            self.csiro_source_data = source_fh.read()
+            source_fh.close()
+
+        msg = 'Data source from {source}'
+        log.debug(msg.format(source=source))
 
     def dump_source(self, filename=None):
         """Write out the contents of the :attr:`csiro_source_data`

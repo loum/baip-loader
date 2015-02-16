@@ -20,6 +20,21 @@ class TestLoader(unittest2.TestCase):
         msg = 'Object is not a baip_loader.Loader'
         self.assertIsInstance(loader, baip_loader.Loader, msg)
 
+    def test_source_from_filename(self):
+        """Source data: filename.
+        """
+        loader = baip_loader.Loader()
+        source_xml_file = os.path.join(self._source_dir,
+                                       'baip-meta-single-record.xml')
+
+        loader.source(source_xml_file)
+        received = loader.csiro_source_data
+        source_xml_obj = open(source_xml_file)
+        expected = source_xml_obj.read()
+        source_xml_obj.close()
+        msg = 'XML source contents are different'
+        self.assertEqual(received, expected, msg)
+
     def test_xml2json(self):
         """XML to JSON conversion.
         """
