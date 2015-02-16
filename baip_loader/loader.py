@@ -1,8 +1,10 @@
 import urllib2
 import tempfile
+import xmltodict
+import json
 
 from logga.log import log
-    
+
 
 __all__ = ["Loader"]
 
@@ -89,3 +91,18 @@ class Loader(object):
             log.info('Source data not defined -- skipping write')
 
         return target_file
+
+    @staticmethod
+    def xml2json(xml):
+        """Convert the *xml* data structure to JSON.
+
+        **Args:**
+            *xml*: the XML data structure to convert to JSON
+
+        **Returns:**
+            The JSON equivalent of *xml*
+
+        """
+        json_data = xmltodict.parse(xml)
+
+        return json.dumps(json_data)
