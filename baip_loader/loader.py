@@ -70,7 +70,7 @@ class Loader(object):
             self.csiro_source_data = source_fh.read()
             source_fh.close()
 
-        msg = 'Data source from {source}'
+        msg = 'Data sourced from {source}'
         log.debug(msg.format(source=source))
 
     def dump_source(self, filename=None):

@@ -29,6 +29,13 @@ def main():
     scrape_parser = subparsers.add_parser('scrape', help=scrape_help)
     scrape_parser.set_defaults(func=scrape)
 
+    infile_help = 'Source XML from filename'
+    scrape_parser.add_argument('-i',
+                               '--input-file',
+                               action='store',
+                               help=infile_help,
+                               dest='infile')
+
     outfile_help = 'Override output filename'
     scrape_parser.add_argument('-o',
                                '--outfile',
@@ -55,13 +62,14 @@ def main():
 def scrape(args, conf):
     scraper = baip_loader.Loader()
 
-    schema = conf.csiro_url_scheme
-    netloc = conf.csiro_netloc
-    path = conf.csiro_path
-    uri = urlparse.urlunsplit((schema, netloc, path, None, None))
-    scraper.csiro_source_uri = uri
+    if args.infile is None:
+        schema = conf.csiro_url_scheme
+        netloc = conf.csiro_netloc
+        path = conf.csiro_path
+        uri = urlparse.urlunsplit((schema, netloc, path, None, None))
+        scraper.csiro_source_uri = uri
 
-    scraper.source()
+    scraper.source(filename=args.infile)
     if args.outfile is not None:
         scraper.dump_source(args.outfile)
 
