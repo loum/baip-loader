@@ -3,15 +3,23 @@
 BAIP - Loader
 =============
 
+The BAIP Loader is a fit-for-purpose extract and load tool.  In this
+workflow, the Loader:
+
+* extracts BAIP CSIRO metadata as an ANZLIC-compliant XML structure
+* translates ANZLIC-compliant XML into a JSON data structure
+* adds CKAN metadata fields
+* loads the JSON data structure into CKAN
+
 Contents:
+---------
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
 
-   modules/loader.rst
+   interfaces/index.rst
 
-   modules/loader-daemon.rst
-   modules/loader-config.rst
+   modules/index.rst
 
 Indices and tables
 ==================
