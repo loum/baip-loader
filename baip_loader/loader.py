@@ -108,6 +108,43 @@ class Loader(object):
 
         return target_file
 
+    def dump_translated(self, filename=None):
+        """Write out the contents of the :attr:`csiro_source_data`
+        to *filename* if not `None` or a temporary file using
+        :mod:`tempfile.NamedTemporaryFile` as JSON.
+
+        XML to JSON translation is implied.
+
+        if :attr:`csiro_source_data` is `None` then no attempt to write
+        will be made.
+
+        **Args:**
+            *filename*: full path of the target file to write to
+
+        **Returns:**
+            On write success, the name of the output filename.  ``None``
+            otherwise
+
+        """
+        file_obj = None
+        target_file = None
+
+        if self.csiro_source_data is not None:
+            if filename is None:
+                file_obj = tempfile.NamedTemporaryFile(delete=False)
+            else:
+                file_obj = open(filename, 'w')
+
+            target_file = file_obj.name
+
+            log.info('Writing CSIRO content to {0}'.format(target_file))
+            file_obj.write(self.xml2json(self.csiro_source_data))
+            file_obj.close()
+        else:
+            log.info('Source data not defined -- skipping write')
+
+        return target_file
+
     @staticmethod
     def xml2json(xml):
         """Convert the *xml* data structure to JSON.

@@ -1,5 +1,6 @@
 import unittest2
 import os
+import tempfile
 
 import baip_loader
 
@@ -53,6 +54,38 @@ class TestLoader(unittest2.TestCase):
         # Clean up.
         source_xml_obj.close()
         target_json_obj.close()
+
+    def test_dump_translated(self):
+        """XML to JSON translated dump.
+        """
+        # Given a CSIRO BAIP XML metadata structure
+        source_xml_file = os.path.join(self._source_dir,
+                                       'baip-meta-single-record.xml')
+
+        # when an output file name is provided
+        tempfile_obj = tempfile.NamedTemporaryFile()
+        target_file = tempfile_obj.name
+        tempfile_obj.close()
+
+        # and I convert to JSON
+        loader = baip_loader.Loader()
+        loader.source(filename=source_xml_file)
+        json_filename = loader.dump_translated(filename=target_file)
+
+        # then the CSIRO BAIP JSON Metadata should be saved to file
+        json_fh = open(json_filename)
+        received = json_fh.read().strip()
+        json_fh = None
+
+        target_json_file = os.path.join(self._results_dir,
+                                        'baip-meta-single-record.json')
+        target_json_obj = open(target_json_file)
+        expected = target_json_obj.read().strip()
+        msg = 'Translated JSON output error'
+        self.assertEqual(received, expected, msg)
+
+        # Clean up.
+        os.remove(target_file)
 
     @classmethod
     def tearDownClass(cls):

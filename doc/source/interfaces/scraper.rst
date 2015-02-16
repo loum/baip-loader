@@ -45,6 +45,8 @@ For example, the following configuration is assocated with the URL
     
     optional arguments:
       -h, --help            show this help message and exit
+      -i INFILE, --input-file INFILE
+                            Source XML from filename
       -o OUTFILE, --outfile OUTFILE
                             Override output filename
 
