@@ -8,10 +8,3 @@ Modules
 
    loader.rst
    loader-config.rst
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

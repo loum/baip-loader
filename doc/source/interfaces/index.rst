@@ -10,3 +10,4 @@ manage the inbound and outbound processing.
     :maxdepth: 2
 
     scraper.rst
+    translator.rst

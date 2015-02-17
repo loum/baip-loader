@@ -17,6 +17,8 @@ Scraper Workflow
 The sourcing of CSIRO metadata is achieved via the ``baip-loader`` command
 inconjunction with the ``scrape`` sub-command.
 
+.. _scraper_configuration:
+
 Configuration
 ^^^^^^^^^^^^^
 ``baip-loader`` scrape context takes its runtime parameters from the
