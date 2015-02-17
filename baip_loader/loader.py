@@ -145,6 +145,62 @@ class Loader(object):
 
         return target_file
 
+    def extract_guids(self):
+        """Cycle through the :attr:`csiro_source_data` XML data structure
+
+        CSIRO XML root is the ``BaMetadataRecords`` element.  It can
+        contain 1 or more ``MD_Metadata`` nested items.  Here, we support
+        both types of nested structures.
+
+        **Returns**:
+            a list of all extracted CSIRO GUIDs
+
+        """
+        guids = []
+
+        xml_data = {}
+        if self.csiro_source_data is not None:
+            xml_data = self.csiro_source_data
+
+        xml_dict = xmltodict.parse(xml_data)
+
+        # Only interested in the "BaMetadataRecords" element.
+        ba_metadata_records = xml_dict.get('BaMetadataRecords')
+        if ba_metadata_records is None:
+            log.error('Unable source BaMetadataRecords root element')
+        else:
+            md_metadata = ba_metadata_records.get('gmd:MD_Metadata')
+            if md_metadata is not None:
+                if isinstance(md_metadata, list):
+                    for item in md_metadata:
+                        guid = self.extract_guid(item)
+                        if guid is not None:
+                            guids.append(guid)
+                elif isinstance(md_metadata, dict):
+                    guid = self.extract_guid(md_metadata)
+                    if guid is not None:
+                        guids.append(guid)
+
+        return guids
+
+    def extract_guid(self, md_metadata):
+        """Contains the logic that manages the actual nested
+        ``gco:CharacterString`` (or CSIRO GUID) extraction.
+
+        **Returns:**
+            the CSIRO Metadata GUID upon success.  ``None`` otherwise.
+
+        """
+        guid = None
+
+        file_id = md_metadata.get('gmd:fileIdentifier')
+        if file_id is None:
+            log.error('Unable to source "gmd:fileIdentifier"')
+        else:
+            guid = file_id.get('gco:CharacterString')
+
+        return guid
+
     @staticmethod
     def xml2json(xml):
         """Convert the *xml* data structure to JSON.

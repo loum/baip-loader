@@ -87,6 +87,61 @@ class TestLoader(unittest2.TestCase):
         # Clean up.
         os.remove(target_file)
 
+    def test_extract_multiple_guids(self):
+        """Extract multiple GUID.
+        """
+        # Given a JSON data structure with multiple items
+        source_xml_file = os.path.join(self._source_dir,
+                                       'baip-meta-multiple-records.xml')
+
+        # when I want to extract the GUIDs
+        loader = baip_loader.Loader()
+        loader.source(filename=source_xml_file)
+        received = loader.extract_guids()
+
+        # then a list of GUIDs is to be returned
+        expected = [u'781A8B81-93B8-4CDE-9B56-00291D7543EA',
+                    u'457ED79A-C6DF-4AAF-A480-00926E48CAA8',
+                    u'6968B11F-9912-42CA-8536-00CDE75E75D9',
+                    u'6151C409-0CAF-4727-9F57-00F6B71A58FB']
+        msg = 'list of GUIDs incorrect'
+        self.assertListEqual(received, expected, msg)
+
+    def test_extract_single_guid(self):
+        """Extract single GUID.
+        """
+        # Given a JSON data structure with multiple items
+        source_xml_file = os.path.join(self._source_dir,
+                                       'baip-meta-single-record.xml')
+
+        # when I want to extract the GUIDs
+        loader = baip_loader.Loader()
+        loader.source(filename=source_xml_file)
+        received = loader.extract_guids()
+
+        # then a list of GUIDs is to be returned
+        expected = [u'DD006FCE-BEF5-4377-82AE-2C5A14B50E34']
+        msg = 'list of GUIDs incorrect'
+        self.assertListEqual(received, expected, msg)
+
+    def test_extract_guid(self):
+        """Extract the GUID from the CSIRO dictionary structure.
+        """
+        source_dict = {
+            'gmd:MD_Metadata': {
+                'gmd:fileIdentifier': {
+                    'gco:CharacterString':
+                        'DD006FCE-BEF5-4377-82AE-2C5A14B50E34'
+                }
+            }
+        }
+
+        loader = baip_loader.Loader()
+        received = loader.extract_guid(source_dict['gmd:MD_Metadata'])
+        expected = 'DD006FCE-BEF5-4377-82AE-2C5A14B50E34'
+        msg = 'Extracted GUID error'
+        self.assertEqual(received, expected, msg)
+
     @classmethod
     def tearDownClass(cls):
         cls._source_dir == None
