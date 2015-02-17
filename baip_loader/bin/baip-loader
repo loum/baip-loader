@@ -43,6 +43,25 @@ def main():
                                help=outfile_help,
                                dest='outfile')
 
+    # 'translate' subcommand.
+    xlate_help = 'Translate CSIRO XML to JSON'
+    xlate_parser = subparsers.add_parser('translate', help=xlate_help)
+    xlate_parser.set_defaults(func=xlate)
+
+    infile_help = 'Source XML from filename'
+    xlate_parser.add_argument('-i',
+                              '--input-file',
+                              action='store',
+                              help=infile_help,
+                              dest='infile')
+
+    outfile_help = 'Override output filename'
+    xlate_parser.add_argument('-o',
+                              '--outfile',
+                              action='store',
+                              help=outfile_help,
+                              dest='outfile')
+
     args = parser.parse_args()
 
     config_file = args.config_file
@@ -52,26 +71,31 @@ def main():
 
     if config_file is None:
         sys.exit('Unable to source the BAIP loader.conf')
-    else:
-        conf = baip_loader.LoaderConfig(config_file)
-        conf.parse_config()
 
-    args.func(args, conf)
+    conf = baip_loader.LoaderConfig(config_file)
+    conf.parse_config()
+
+    schema = conf.csiro_url_scheme
+    netloc = conf.csiro_netloc
+    path = conf.csiro_path
+    uri = urlparse.urlunsplit((schema, netloc, path, None, None))
+
+    args.func(args, uri)
 
 
-def scrape(args, conf):
+def scrape(args, uri):
     scraper = baip_loader.Loader()
-
-    if args.infile is None:
-        schema = conf.csiro_url_scheme
-        netloc = conf.csiro_netloc
-        path = conf.csiro_path
-        uri = urlparse.urlunsplit((schema, netloc, path, None, None))
-        scraper.csiro_source_uri = uri
+    scraper.csiro_source_uri = uri
 
     scraper.source(filename=args.infile)
     if args.outfile is not None:
         scraper.dump_source(args.outfile)
+
+
+def xlate(args, uri):
+    baip_loader.Translator.translate(uri=uri,
+                                     infile=args.infile,
+                                     outfile=args.outfile)
 
 
 if __name__ == '__main__':

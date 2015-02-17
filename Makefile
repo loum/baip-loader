@@ -19,7 +19,8 @@ PYTHONPATH=.:../logga:../configa:../daemoniser:../filer
 # Note: for this to work you will need to import the test class into
 # the current namespace via "tests/__init__.py"
 TEST=baip_loader.tests:TestLoader \
-	baip_loader.config.tests:TestLoaderConfig
+	baip_loader.config.tests:TestLoaderConfig \
+	baip_loader.interface.tests:TestTranslator
 
 sdist:
 	$(PY) setup.py sdist
