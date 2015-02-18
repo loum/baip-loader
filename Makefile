@@ -20,7 +20,8 @@ PYTHONPATH=.:../logga:../configa:../daemoniser:../filer
 # the current namespace via "tests/__init__.py"
 TEST=baip_loader.tests:TestLoader \
 	baip_loader.config.tests:TestLoaderConfig \
-	baip_loader.interface.tests:TestTranslator
+	baip_loader.interface.tests:TestTranslator \
+	baip_loader.interface.tests:TestDumper
 
 sdist:
 	$(PY) setup.py sdist

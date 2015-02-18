@@ -145,7 +145,7 @@ class Loader(object):
 
         return target_file
 
-    def extract_guids(self):
+    def extract_guids(self, xml_data=None, to_json=False):
         """Cycle through the :attr:`csiro_source_data` XML data structure
 
         CSIRO XML root is the ``BaMetadataRecords`` element.  It can
@@ -156,11 +156,11 @@ class Loader(object):
             a list of all extracted CSIRO GUIDs
 
         """
-        guids = []
-
-        xml_data = {}
         if self.csiro_source_data is not None:
             xml_data = self.csiro_source_data
+
+        if xml_data is None:
+            xml_data = {}
 
         xml_dict = xmltodict.parse(xml_data)
 
@@ -171,21 +171,38 @@ class Loader(object):
         else:
             md_metadata = ba_metadata_records.get('gmd:MD_Metadata')
             if md_metadata is not None:
+                if isinstance(md_metadata, dict):
+                    # Fudge value into list so that we can apply a single
+                    # processing logic stream.
+                    md_metadata = [md_metadata]
+
                 if isinstance(md_metadata, list):
                     for item in md_metadata:
                         guid = self.extract_guid(item)
                         if guid is not None:
-                            guids.append(guid)
-                elif isinstance(md_metadata, dict):
-                    guid = self.extract_guid(md_metadata)
-                    if guid is not None:
-                        guids.append(guid)
+                            item_as_json = None
+                            if to_json:
+                                item_as_json = json.dumps(item)
 
-        return guids
+                            yield (guid, item_as_json)
 
     def extract_guid(self, md_metadata):
         """Contains the logic that manages the actual nested
         ``gco:CharacterString`` (or CSIRO GUID) extraction.
+
+        **Args:**
+            *md_metadata*:
+                the CSIRO nested ``gmd:MD_Metadata`` item as a Python
+                dictionary strucutre.  For example::
+
+                    {
+                        'gmd:MD_Metadata': {
+                            'gmd:fileIdentifier': {
+                                'gco:CharacterString':
+                                    'DD006FCE-BEF5-4377-82AE-2C5A14B50E34'
+                             }
+                        }
+                    }
 
         **Returns:**
             the CSIRO Metadata GUID upon success.  ``None`` otherwise.

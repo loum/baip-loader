@@ -100,12 +100,12 @@ class TestLoader(unittest2.TestCase):
         received = loader.extract_guids()
 
         # then a list of GUIDs is to be returned
-        expected = [u'781A8B81-93B8-4CDE-9B56-00291D7543EA',
-                    u'457ED79A-C6DF-4AAF-A480-00926E48CAA8',
-                    u'6968B11F-9912-42CA-8536-00CDE75E75D9',
-                    u'6151C409-0CAF-4727-9F57-00F6B71A58FB']
+        expected = [(u'781A8B81-93B8-4CDE-9B56-00291D7543EA', None),
+                    (u'457ED79A-C6DF-4AAF-A480-00926E48CAA8', None),
+                    (u'6968B11F-9912-42CA-8536-00CDE75E75D9', None),
+                    (u'6151C409-0CAF-4727-9F57-00F6B71A58FB', None)]
         msg = 'list of GUIDs incorrect'
-        self.assertListEqual(received, expected, msg)
+        self.assertListEqual(list(received), expected, msg)
 
     def test_extract_single_guid(self):
         """Extract single GUID.
@@ -120,9 +120,9 @@ class TestLoader(unittest2.TestCase):
         received = loader.extract_guids()
 
         # then a list of GUIDs is to be returned
-        expected = [u'DD006FCE-BEF5-4377-82AE-2C5A14B50E34']
+        expected = [(u'DD006FCE-BEF5-4377-82AE-2C5A14B50E34', None)]
         msg = 'list of GUIDs incorrect'
-        self.assertListEqual(received, expected, msg)
+        self.assertListEqual(list(received), expected, msg)
 
     def test_extract_guid(self):
         """Extract the GUID from the CSIRO dictionary structure.
@@ -142,7 +142,23 @@ class TestLoader(unittest2.TestCase):
         msg = 'Extracted GUID error'
         self.assertEqual(received, expected, msg)
 
+    def test_prepare_json_item(self):
+        """
+        """
+        source_xml_file = os.path.join(self._source_dir,
+                                       'baip-meta-single-record-small.xml')
+        source_xml_obj = open(source_xml_file)
+        source_xml = source_xml_obj.read()
+        source_xml_obj.close()
+
+        loader = baip_loader.Loader()
+        received = loader.extract_guids(source_xml,
+                                        to_json=True)
+        expected = [(u'DD006FCE-BEF5-4377-82AE-2C5A14B50E34', '{"@xmlns:gmd": "http://www.isotc211.org/2005/gmd", "gmd:fileIdentifier": {"gco:CharacterString": "DD006FCE-BEF5-4377-82AE-2C5A14B50E34"}}')]
+        msg = 'Extracted GUID error'
+        self.assertListEqual(list(received), expected, msg)
+
     @classmethod
     def tearDownClass(cls):
-        cls._source_dir == None
-        cls._results_dir == None
+        cls._source_dir = None
+        cls._results_dir = None
