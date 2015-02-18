@@ -62,6 +62,18 @@ def main():
                               help=outfile_help,
                               dest='outfile')
 
+    # 'dump' subcommand.
+    dump_help = 'Dump CSIRO XML as individual JSON files'
+    dump_parser = subparsers.add_parser('dump', help=dump_help)
+    dump_parser.set_defaults(func=dump)
+
+    infile_help = 'Source XML from filename'
+    dump_parser.add_argument('-i',
+                             '--input-file',
+                             action='store',
+                             help=infile_help,
+                             dest='infile')
+
     args = parser.parse_args()
 
     config_file = args.config_file
@@ -80,10 +92,10 @@ def main():
     path = conf.csiro_path
     uri = urlparse.urlunsplit((schema, netloc, path, None, None))
 
-    args.func(args, uri)
+    args.func(args, uri, conf)
 
 
-def scrape(args, uri):
+def scrape(args, uri, None):
     scraper = baip_loader.Loader()
     scraper.csiro_source_uri = uri
 
@@ -92,10 +104,16 @@ def scrape(args, uri):
         scraper.dump_source(args.outfile)
 
 
-def xlate(args, uri):
+def xlate(args, uri, None):
     baip_loader.Translator.translate(uri=uri,
                                      infile=args.infile,
                                      outfile=args.outfile)
+
+
+def dump(args, uri, conf):
+    dumper = baip_loader.Dumper()
+    dumper.target_dir = conf.inbound_dir
+    dumper.dump(uri=uri, infile=args.infile)
 
 
 if __name__ == '__main__':
