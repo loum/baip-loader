@@ -10,19 +10,20 @@ __all__ = ["Loader"]
 
 
 class Loader(object):
-    """:class:`baip_loader.Loader`
+    """ 
+    .. attribute:: csiro_source_uri
 
-    .. attribute:: *csiro_source_uri*
+        CSIRO XML-based metadata endpoint
 
-    .. attribute:: *csiro_source_data*
+    .. attribute:: csiro_source_data
+
+        Memory resident copy of the sourced CSIRO XML-based metadata
 
     """
     _csiro_source_uri = None
     _csiro_source_data = None
 
     def __init__(self, source_uri=None):
-        """
-        """
         if source_uri is not None:
             self._csiro_source_uri = source_uri
 

@@ -3,10 +3,8 @@
 .. toctree::
     :maxdepth: 2
 
-Loader Config
-=============
+:mod:`baip_loader.LoaderConfig`
+===============================
 
-Methods
--------
 .. autoclass:: baip_loader.LoaderConfig
-    :members:
+    :members: parse_config

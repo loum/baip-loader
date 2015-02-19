@@ -3,10 +3,8 @@
 .. toctree::
     :maxdepth: 2
 
-Loader
-======
+:mod:`baip_loader.Loader`
+=========================
 
-Methods
--------
 .. autoclass:: baip_loader.Loader
-    :members:
+    :members: source, dump_source, dump_translated, extract_guids, extract_guid, xml2json

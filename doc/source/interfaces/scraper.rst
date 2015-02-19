@@ -20,7 +20,12 @@ inconjunction with the ``scrape`` sub-command.
 .. _scraper_configuration:
 
 Configuration
-^^^^^^^^^^^^^
+-------------
+
+.. _csiro_metadata_endpoint_configuration:
+
+CSIRO Metadata Endpoint
+^^^^^^^^^^^^^^^^^^^^^^^
 ``baip-loader`` scrape context takes its runtime parameters from the
 ``/etc/baip/conf/loader.conf`` file.  The CSIRO target endpoint
 can be configured under the ``[csiro]`` section.  The supported settings

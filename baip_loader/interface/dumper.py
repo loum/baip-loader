@@ -7,7 +7,10 @@ __all__ = ['Dumper']
 
 
 class Dumper(object):
-    """:class:`baip_loader.Dumper`
+    """
+    .. attribute:: target_dir
+
+        Absolute path to the directory where mapped JSON files are stored
 
     """
     _target_dir = None
@@ -26,6 +29,19 @@ class Dumper(object):
         self._target_dir = value
 
     def dump(self, uri=None, infile=None):
+        """Write out the mapped CSIRO XML-based metadata to GUID-based
+        JSON files.
+
+        **Args:**
+            *uri*: the URI of the endpoint to connect and source CSIRO
+            XML metadata
+
+            *infile*: alternate file-based  CSIRO XML metadata
+
+        **Returns:**
+            a list of absolute filenames written to the filesystem
+
+        """
         loader = baip_loader.Loader()
 
         loader.csiro_source_uri = uri

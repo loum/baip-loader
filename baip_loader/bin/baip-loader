@@ -95,7 +95,7 @@ def main():
     args.func(args, uri, conf)
 
 
-def scrape(args, uri, None):
+def scrape(args, uri):
     scraper = baip_loader.Loader()
     scraper.csiro_source_uri = uri
 
@@ -104,7 +104,7 @@ def scrape(args, uri, None):
         scraper.dump_source(args.outfile)
 
 
-def xlate(args, uri, None):
+def xlate(args, uri):
     baip_loader.Translator.translate(uri=uri,
                                      infile=args.infile,
                                      outfile=args.outfile)

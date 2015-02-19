@@ -11,12 +11,31 @@ from configa.setter import set_scalar
 
 
 class LoaderConfig(Config):
-    """:class:`baip_loader.LoaderConfig` class.
+    """
+    .. attribute:: inbound_dir
+
+        Staging directory for the CKAN JSON ingest files
+
+    .. attribute:: csiro_url_scheme
+
+        The type of the CSIRO endpoint URL.  For example ``http``
+
+    .. attribute:: csiro_netloc
+
+        The URL's network location part (CSIRO endpoint)
+
+    .. attribute:: csiro_path
+
+        The URL hierarchical path (CSIRO endpoint)
+
+    .. attribute:: csiro_query
+
+        The URL query component (CSIRO endpoint)
+
+    .. attribute:: csiro_api_key
 
     """
-    _thread_sleep = 2.0
     _inbound_dir = None
-    _archive_dir = None
     _csiro_url_scheme = None
     _csiro_netloc = None
     _csiro_path = None
@@ -30,27 +49,11 @@ class LoaderConfig(Config):
         Config.__init__(self, config_file)
 
     @property
-    def thread_sleep(self):
-        return self._thread_sleep
-
-    @set_scalar
-    def set_thread_sleep(self, value):
-        pass
-
-    @property
     def inbound_dir(self):
         return self._inbound_dir
 
     @set_scalar
     def set_inbound_dir(self, value):
-        pass
-
-    @property
-    def archive_dir(self):
-        return self._archive_dir
-
-    @set_scalar
-    def set_archive_dir(self, value):
         pass
 
     @property
@@ -100,12 +103,7 @@ class LoaderConfig(Config):
         Config.parse_config(self)
 
         kwargs = [{'section': 'ingest',
-                   'option': 'thread_sleep',
-                   'cast_type': 'float'},
-                  {'section': 'ingest',
                    'option': 'inbound_dir'},
-                  {'section': 'ingest',
-                   'option': 'archive_dir'},
                   {'section': 'csiro',
                    'var': 'csiro_url_scheme',
                    'option': 'url_scheme'},
