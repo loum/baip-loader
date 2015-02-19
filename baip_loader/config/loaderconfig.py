@@ -1,13 +1,9 @@
-# pylint: disable=R0902,R0903,R0904,C0111,W0142
-"""The :class:`baip_loader.LoaderConfig` is the configuration parser for
-the BAIP Loader facility.
-
-"""
-__all__ = ["LoaderConfig"]
-
+import urlparse
 
 from configa.config import Config
 from configa.setter import set_scalar
+
+__all__ = ["LoaderConfig"]
 
 
 class LoaderConfig(Config):
@@ -32,7 +28,19 @@ class LoaderConfig(Config):
 
         The URL query component (CSIRO endpoint)
 
-    .. attribute:: csiro_api_key
+    .. attribute:: ckan_url_scheme
+
+        The type of the CKAN endpoint URL.  For example ``http``
+
+    .. attribute:: ckan_netloc
+
+        The URL's network location part (CKAN endpoint)
+
+    .. attribute:: ckan_path
+
+        The URL hierarchical path (CKAN endpoint)
+
+    .. attribute:: ckan_api_key
 
     """
     _inbound_dir = None
@@ -40,6 +48,9 @@ class LoaderConfig(Config):
     _csiro_netloc = None
     _csiro_path = None
     _csiro_query = None
+    _ckan_url_scheme = None
+    _ckan_netloc = None
+    _ckan_path = None
     _ckan_api_key = None
 
     def __init__(self, config_file=None):
@@ -89,6 +100,46 @@ class LoaderConfig(Config):
         pass
 
     @property
+    def csiro_uri(self):
+        scheme = self.csiro_url_scheme
+        netloc = self.csiro_netloc
+        path = self.csiro_path
+
+        return urlparse.urlunsplit((scheme, netloc, path, None, None))
+
+    @property
+    def ckan_url_scheme(self):
+        return self._ckan_url_scheme
+
+    @set_scalar
+    def set_ckan_url_scheme(self, value):
+        pass
+
+    @property
+    def ckan_netloc(self):
+        return self._ckan_netloc
+
+    @set_scalar
+    def set_ckan_netloc(self, value):
+        pass
+
+    @property
+    def ckan_path(self):
+        return self._ckan_path
+
+    @set_scalar
+    def set_ckan_path(self, value):
+        pass
+
+    @property
+    def ckan_uri(self):
+        scheme = self.ckan_url_scheme
+        netloc = self.ckan_netloc
+        path = self.ckan_path
+
+        return urlparse.urlunsplit((scheme, netloc, path, None, None))
+
+    @property
     def ckan_api_key(self):
         return self._ckan_api_key
 
@@ -116,6 +167,15 @@ class LoaderConfig(Config):
                   {'section': 'csiro',
                    'var': 'csiro_query',
                    'option': 'query'},
+                  {'section': 'ckan',
+                   'var': 'ckan_url_scheme',
+                   'option': 'url_scheme'},
+                  {'section': 'ckan',
+                   'var': 'ckan_netloc',
+                   'option': 'netloc'},
+                  {'section': 'ckan',
+                   'var': 'ckan_path',
+                   'option': 'path'},
                   {'section': 'ckan',
                    'var': 'ckan_api_key',
                    'option': 'api_key'}]

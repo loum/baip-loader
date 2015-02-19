@@ -39,11 +39,6 @@ class TestLoaderConfig(unittest2.TestCase):
         msg = 'LoaderConfig.inbound_dir not as expected'
         self.assertEqual(received, expected, msg)
 
-        received = self._conf.ckan_api_key
-        expected = '524130fc-da5e-4d8c-b5c6-3e980b02f148'
-        msg = 'LoaderConfig.ckan_api_key not as expected'
-        self.assertEqual(received, expected, msg)
-
         received = self._conf.csiro_url_scheme
         expected = 'http'
         msg = 'LoaderConfig.csiro_url_scheme not as expected'
@@ -62,6 +57,36 @@ class TestLoaderConfig(unittest2.TestCase):
         received = self._conf.csiro_query
         expected = 'query'
         msg = 'LoaderConfig.csiro_path not as expected'
+        self.assertEqual(received, expected, msg)
+
+        received = self._conf.csiro_uri
+        expected = 'http://data.bioregionalassessments.gov.au/function/metadataexport'
+        msg = 'LoaderConfig.csiro_path not as expected'
+        self.assertEqual(received, expected, msg)
+
+        received = self._conf.ckan_url_scheme
+        expected = 'http'
+        msg = 'LoaderConfig.ckan_url_scheme not as expected'
+        self.assertEqual(received, expected, msg)
+
+        received = self._conf.ckan_netloc
+        expected = 'test.ddg.lws.links.com.au'
+        msg = 'LoaderConfig.ckan_netloc not as expected'
+        self.assertEqual(received, expected, msg)
+
+        received = self._conf.ckan_path
+        expected = '/api/action/package_create'
+        msg = 'LoaderConfig.ckan_netloc not as expected'
+        self.assertEqual(received, expected, msg)
+
+        received = self._conf.ckan_uri
+        expected = 'http://test.ddg.lws.links.com.au/api/action/package_create'
+        msg = 'LoaderConfig.ckan_uri not as expected'
+        self.assertEqual(received, expected, msg)
+
+        received = self._conf.ckan_api_key
+        expected = '524130fc-da5e-4d8c-b5c6-3e980b02f148'
+        msg = 'LoaderConfig.ckan_api_key not as expected'
         self.assertEqual(received, expected, msg)
 
     def tearDown(self):

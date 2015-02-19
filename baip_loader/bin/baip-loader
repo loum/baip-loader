@@ -3,7 +3,6 @@
 import os
 import sys
 import argparse
-import urlparse
 
 import baip_loader
 
@@ -87,33 +86,28 @@ def main():
     conf = baip_loader.LoaderConfig(config_file)
     conf.parse_config()
 
-    schema = conf.csiro_url_scheme
-    netloc = conf.csiro_netloc
-    path = conf.csiro_path
-    uri = urlparse.urlunsplit((schema, netloc, path, None, None))
-
-    args.func(args, uri, conf)
+    args.func(args, conf)
 
 
-def scrape(args, uri):
+def scrape(args, conf):
     scraper = baip_loader.Loader()
-    scraper.csiro_source_uri = uri
+    scraper.csiro_source_uri = conf.csiro_uri
 
     scraper.source(filename=args.infile)
     if args.outfile is not None:
         scraper.dump_source(args.outfile)
 
 
-def xlate(args, uri):
-    baip_loader.Translator.translate(uri=uri,
+def xlate(args, conf):
+    baip_loader.Translator.translate(uri=conf.csiro_uri,
                                      infile=args.infile,
                                      outfile=args.outfile)
 
 
-def dump(args, uri, conf):
+def dump(args, conf):
     dumper = baip_loader.Dumper()
     dumper.target_dir = conf.inbound_dir
-    dumper.dump(uri=uri, infile=args.infile)
+    dumper.dump(uri=conf.ckan_uri, infile=args.infile)
 
 
 if __name__ == '__main__':

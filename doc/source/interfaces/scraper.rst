@@ -26,7 +26,7 @@ Configuration
 
 CSIRO Metadata Endpoint
 ^^^^^^^^^^^^^^^^^^^^^^^
-``baip-loader`` scrape context takes its runtime parameters from the
+``baip-loader scrape`` context takes its runtime parameters from the
 ``/etc/baip/conf/loader.conf`` file.  The CSIRO target endpoint
 can be configured under the ``[csiro]`` section.  The supported settings
 form the general structure of the URL in the format::
@@ -39,7 +39,7 @@ For example, the following configuration is assocated with the URL
     [csiro]
     url_scheme: http
     netloc: data.bioregionalassessments.gov.au
-    path: function/metadataexport
+    path: /function/metadataexport
     query:
 
 ``baip-loader scrape`` Usage

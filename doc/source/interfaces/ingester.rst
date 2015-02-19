@@ -12,6 +12,13 @@ The BAIP Loader ``ingest`` context is responsible for sourcing translated
 CSIRO Metadata JSON files and ingest into the
 `data.gov.au <http://data.gov.au/>`_ endpoint.
 
+Programmatically, the ingest process closely follows the
+`CKAN guide for making an API request <http://docs.ckan.org/en/latest/api/index.html?highlight=importer#making-an-api-request>`_.  In brief, we use
+the :mod:`urllib2` module to create a HTTP request.  The request header
+is modified accordingly to authenticate connectivity and satisfy the
+API's validation requirements.  The required request/validation
+parameters will be detailed here.
+
 Ingester Workflow
 -----------------
 
@@ -34,6 +41,24 @@ Typical organisation of the generated files is as follows::
 
 Configuration
 -------------
+
+CKAN Ingest Endpoint
+^^^^^^^^^^^^^^^^^^^^
+
+``baip-loader ingest`` context takes its runtime parameters from the
+``/etc/baip/conf/loader.conf`` file.  The CKAN target endpoint
+can be configured under the ``[ckan]`` section.  The supported settings
+form the general structure of the URL in the format::
+
+    scheme://netloc/path
+
+For example, the following configuration is assocated with the URL
+``http://test.ddg.lws.links.com.au/api/action/package_create``::
+
+    [ckan]
+    url_scheme: http
+    netloc: test.ddg.lws.links.com.au
+    path: /api/action/package_create
 
 JSON File Source Directory
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
