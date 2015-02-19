@@ -10,3 +10,4 @@ Modules
    loader-config.rst
    interface-translator.rst
    interface-dump.rst
+   interface-ingester.rst

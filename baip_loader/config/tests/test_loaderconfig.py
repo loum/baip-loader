@@ -34,19 +34,9 @@ class TestLoaderConfig(unittest2.TestCase):
         self._conf.set_config_file(self._file)
         self._conf.parse_config()
 
-        received = self._conf.thread_sleep
-        expected = 10.0
-        msg = 'LoaderConfig.thread_sleep not as expected'
-        self.assertEqual(received, expected, msg)
-
         received = self._conf.inbound_dir
         expected = '/var/tmp/baip-loader'
         msg = 'LoaderConfig.inbound_dir not as expected'
-        self.assertEqual(received, expected, msg)
-
-        received = self._conf.archive_dir
-        expected = '/var/tmp/baip-loader/archive'
-        msg = 'LoaderConfig.archive_dir not as expected'
         self.assertEqual(received, expected, msg)
 
         received = self._conf.ckan_api_key

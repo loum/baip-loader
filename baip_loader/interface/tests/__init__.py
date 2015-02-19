@@ -2,3 +2,4 @@
 """
 from test_translator import TestTranslator
 from test_dumper import TestDumper
+from test_ingester import TestIngester

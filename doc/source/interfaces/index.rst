@@ -12,3 +12,4 @@ manage the inbound and outbound processing.
     scraper.rst
     translator.rst
     dumper.rst
+    ingester.rst
