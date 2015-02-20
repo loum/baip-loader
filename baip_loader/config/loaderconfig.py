@@ -42,6 +42,8 @@ class LoaderConfig(Config):
 
     .. attribute:: ckan_api_key
 
+        Used to authorise your connection against the API function
+
     """
     _inbound_dir = None
     _csiro_url_scheme = None
@@ -176,7 +178,7 @@ class LoaderConfig(Config):
                   {'section': 'ckan',
                    'var': 'ckan_path',
                    'option': 'path'},
-                  {'section': 'ckan',
+                  {'section': 'ckan_header',
                    'var': 'ckan_api_key',
                    'option': 'api_key'}]
 
