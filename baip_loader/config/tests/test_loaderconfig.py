@@ -89,6 +89,17 @@ class TestLoaderConfig(unittest2.TestCase):
         msg = 'LoaderConfig.ckan_api_key not as expected'
         self.assertEqual(received, expected, msg)
 
+        received = self._conf.ckan_mapper
+        expected = {'title': ['%s|%s|%s|%s|%s|%s' %
+                    ('gmd:identificationInfo',
+                     'gmd:MD_DataIdentification',
+                     'gmd:citation',
+                     'gmd:CI_Citation',
+                     'gmd:title',
+                     'gco:CharacterString')]}
+        msg = 'LoaderConfig.ckan_mapper not as expected'
+        self.assertDictEqual(received, expected, msg)
+
     def tearDown(self):
         self._conf = None
         del self._conf

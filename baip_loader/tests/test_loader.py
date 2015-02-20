@@ -3,6 +3,7 @@ import os
 import tempfile
 
 import baip_loader
+from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
 
 
 class TestLoader(unittest2.TestCase):
@@ -136,8 +137,8 @@ class TestLoader(unittest2.TestCase):
             }
         }
 
-        loader = baip_loader.Loader()
-        received = loader.extract_guid(source_dict['gmd:MD_Metadata'])
+        sample_data = source_dict['gmd:MD_Metadata']
+        received = baip_loader.Loader.extract_guid(sample_data)
         expected = 'DD006FCE-BEF5-4377-82AE-2C5A14B50E34'
         msg = 'Extracted GUID error'
         self.assertEqual(received, expected, msg)
@@ -157,6 +158,99 @@ class TestLoader(unittest2.TestCase):
         expected = [(u'DD006FCE-BEF5-4377-82AE-2C5A14B50E34', '{"@xmlns:gmd": "http://www.isotc211.org/2005/gmd", "gmd:fileIdentifier": {"gco:CharacterString": "DD006FCE-BEF5-4377-82AE-2C5A14B50E34"}}')]
         msg = 'Extracted GUID error'
         self.assertListEqual(list(received), expected, msg)
+
+    def test_extract_iso19115_field_valid_dictionary(self):
+        """ISO19115 field extraction: valid dictionary
+        """
+        # Given an ISO19115 XML data structure
+        xml_data = ISO19115_ITEM
+
+        # when I perform a mapping request
+        levels = ['gmd:identificationInfo',
+                  'gmd:MD_DataIdentification',
+                  'gmd:citation',
+                  'gmd:CI_Citation',
+                  'gmd:title',
+                  'gco:CharacterString']
+        received = baip_loader.Loader.extract_iso19115_field(levels,
+                                                             xml_data)
+
+        # then the MD_Metadata.identificationInfo:MD_DataIdentification.\
+        # citation:CI_Citation.title field should be extracted
+        expected = 'Victorian Aquifer Framework - Salinity'
+        msg = 'ISO19115 extract error'
+        self.assertEqual(received, expected, msg)
+
+    def test_extract_iso19115_field_empty_dictionary(self):
+        """ISO19115 field extraction: valid dictionary
+        """
+        # Given an empty dictionary
+        xml_data = {}
+
+        # when I perform a mapping request
+        levels = ['gmd:identificationInfo',
+                  'gmd:MD_DataIdentification',
+                  'gmd:citation',
+                  'gmd:CI_Citation',
+                  'gmd:title',
+                  'gco:CharacterString']
+        received = baip_loader.Loader.extract_iso19115_field(levels,
+                                                             xml_data)
+
+        # then no dadta should be extracted
+        msg = 'ISO19115 extract from empty dictionary error'
+        self.assertIsNone(received, msg)
+
+    def test_extract_iso19115_field_bad_level(self):
+        """ISO19115 field extraction: bad level
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when I perform a mapping request
+        levels = ['gmd:identificationInfo',
+                  'gmd:MD_DataIdentification',
+                  'gmd:citation',
+                  'gmd:CI_Citation',
+                  'gmd:title',
+                  'gco:banana']
+        received = baip_loader.Loader.extract_iso19115_field(levels,
+                                                             xml_data)
+
+        # then no data should be extracted
+        msg = 'ISO19115 extract from empty dictionary error'
+        self.assertIsNone(received, msg)
+
+    def test_iso19115_to_ckan_map(self):
+        """CSIRO ISO19115 to CKAN map.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when I perform a mapping request
+        levels = {'title': ['%s|%s|%s|%s|%s|%s' %
+                  ('gmd:identificationInfo',
+                   'gmd:MD_DataIdentification',
+                   'gmd:citation',
+                   'gmd:CI_Citation',
+                   'gmd:title',
+                   'gco:CharacterString')],
+                  'description': ['%s|%s|%s|%s' %
+                  ('gmd:identificationInfo',
+                   'gmd:MD_DataIdentification',
+                   'gmd:abstract',
+                   'gco:CharacterString')]}
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+        # Truncate the long description ...
+        received['description'] = received['description'][:30] + ' ...'
+
+        # then CKAN data should be extracted
+        expected = {'title': u'Victorian Aquifer Framework - Salinity',
+                    'description': u'[This data and its metadata st ...'}
+        msg = 'ISO19115 to CKAN map error'
+        self.assertDictEqual(received, expected, msg)
 
     @classmethod
     def tearDownClass(cls):

@@ -10,7 +10,7 @@ __all__ = ["Loader"]
 
 
 class Loader(object):
-    """ 
+    """
     .. attribute:: csiro_source_uri
 
         CSIRO XML-based metadata endpoint
@@ -19,9 +19,12 @@ class Loader(object):
 
         Memory resident copy of the sourced CSIRO XML-based metadata
 
+    .. attribute:: ckan_mapper
+
     """
     _csiro_source_uri = None
     _csiro_source_data = None
+    _ckan_mapper = {}
 
     def __init__(self, source_uri=None):
         if source_uri is not None:
@@ -42,6 +45,17 @@ class Loader(object):
     @csiro_source_data.setter
     def csiro_source_data(self, value):
         self._csiro_source_data = value
+
+    @property
+    def ckan_mapper(self):
+        return self._ckan_mapper
+
+    @ckan_mapper.setter
+    def ckan_mapper(self, values=None):
+        self._ckan_mapper.clear()
+
+        if values is not None and isinstance(values, dict):
+            self._ckan_mapper = values
 
     def source(self, filename=None):
         """Attempt to source CSIRO metadata.
@@ -179,7 +193,7 @@ class Loader(object):
 
                 if isinstance(md_metadata, list):
                     for item in md_metadata:
-                        guid = self.extract_guid(item)
+                        guid = Loader.extract_guid(item)
                         if guid is not None:
                             item_as_json = None
                             if to_json:
@@ -187,7 +201,8 @@ class Loader(object):
 
                             yield (guid, item_as_json)
 
-    def extract_guid(self, md_metadata):
+    @staticmethod
+    def extract_guid(md_metadata):
         """Contains the logic that manages the actual nested
         ``gco:CharacterString`` (or CSIRO GUID) extraction.
 
@@ -233,3 +248,53 @@ class Loader(object):
         json_data = xmltodict.parse(xml)
 
         return json.dumps(json_data)
+
+    @staticmethod
+    def extract_iso19115_field(levels, xml_data):
+        """Recursively drill into *xml_data* dictionary based on the
+        number of *levels*.
+
+        **Args:**
+            *levels*: list of keys used to drill into the nested
+            dictionary
+
+            *xml_data*: branch of the ISO19115 dictionary structure
+
+        **Returns:**
+            On the last call, the dictionary key's value
+
+        """
+        level = levels.pop(0)
+        if isinstance(xml_data, dict):
+            log.debug('Extracting level: %s' % level)
+            nest = xml_data.get(level)
+        else:
+            nest = None
+
+        if len(levels) > 0 and nest is not None:
+            nest = Loader.extract_iso19115_field(levels, nest)
+
+        return nest
+
+    def iso19115_to_ckan_map(self, xml_data):
+        """Pull out the required CKAN fields from the source *xml_data*
+
+        **Args:**
+            *xml_data*: the source ISO19115 data (in a dictionary
+            data structure representation)
+
+        **Returns:**
+            the CKAN data in a dictionary structure
+
+        """
+        ckan_data = {}
+
+        for key, value in self.ckan_mapper.iteritems():
+            # TODO -- only support single item list.
+            log.info('Performing map for CKAN field: "%s"' % key)
+            levels = value[0].split('|')
+
+            field_value = Loader.extract_iso19115_field(levels, xml_data)
+            ckan_data[key] = field_value
+
+        return ckan_data

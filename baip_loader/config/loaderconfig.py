@@ -1,7 +1,8 @@
 import urlparse
 
 from configa.config import Config
-from configa.setter import set_scalar
+from configa.setter import (set_scalar,
+                            set_dict)
 
 __all__ = ["LoaderConfig"]
 
@@ -44,6 +45,8 @@ class LoaderConfig(Config):
 
         Used to authorise your connection against the API function
 
+    .. attribute:: ckan_mapper
+
     """
     _inbound_dir = None
     _csiro_url_scheme = None
@@ -54,6 +57,7 @@ class LoaderConfig(Config):
     _ckan_netloc = None
     _ckan_path = None
     _ckan_api_key = None
+    _ckan_mapper = {}
 
     def __init__(self, config_file=None):
         """:class:`baip_loader.LoaderConfig` initialisation.
@@ -149,6 +153,14 @@ class LoaderConfig(Config):
     def set_ckan_api_key(self, value):
         pass
 
+    @property
+    def ckan_mapper(self):
+        return self._ckan_mapper
+
+    @set_dict
+    def set_ckan_mapper(self, values=None):
+        pass
+
     def parse_config(self):
         """Read config items from the configuration file.
 
@@ -184,3 +196,9 @@ class LoaderConfig(Config):
 
         for kwarg in kwargs:
             self.parse_scalar_config(**kwarg)
+
+        del kwargs[:]
+        kwargs = [{'section': 'ckan_mapper',
+                   'is_list': True}]
+        for kwarg in kwargs:
+            self.parse_dict_config(**kwarg)
