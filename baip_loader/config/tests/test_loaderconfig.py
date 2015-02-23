@@ -13,6 +13,7 @@ class TestLoaderConfig(unittest2.TestCase):
     """
     @classmethod
     def setUpClass(cls):
+        cls.maxDiff = None
         cls._file = os.path.join('baip_loader',
                                  'config',
                                  'tests',
@@ -60,7 +61,9 @@ class TestLoaderConfig(unittest2.TestCase):
         self.assertEqual(received, expected, msg)
 
         received = self._conf.csiro_uri
-        expected = 'http://data.bioregionalassessments.gov.au/function/metadataexport'
+        netloc = 'http://data.bioregionalassessments.gov.au'
+        path = 'function/metadataexport'
+        expected = '%s/%s' % (netloc, path)
         msg = 'LoaderConfig.csiro_path not as expected'
         self.assertEqual(received, expected, msg)
 
@@ -89,14 +92,31 @@ class TestLoaderConfig(unittest2.TestCase):
         msg = 'LoaderConfig.ckan_api_key not as expected'
         self.assertEqual(received, expected, msg)
 
+    def test_parse_config_ckan_mapper(self):
+        """Parse comms items from the config:ckan_mapper.
+        """
+        self._conf.set_config_file(self._file)
+        self._conf.parse_config()
         received = self._conf.ckan_mapper
         expected = {'title': ['%s|%s|%s|%s|%s|%s' %
-                    ('gmd:identificationInfo',
-                     'gmd:MD_DataIdentification',
-                     'gmd:citation',
-                     'gmd:CI_Citation',
-                     'gmd:title',
-                     'gco:CharacterString')]}
+                              ('gmd:identificationInfo',
+                               'gmd:MD_DataIdentification',
+                               'gmd:citation',
+                               'gmd:CI_Citation',
+                               'gmd:title',
+                               'gco:CharacterString')],
+                    'tags': ['%s|%s|%s|%s' %
+                             ('gmd:identificationInfo',
+                              'gmd:MD_DataIdentification',
+                              'gmd:topicCategory',
+                              'gmd:MD_TopicCategoryCode'),
+                             '%s|%s|%s|%s|%s|%s' %
+                             ('gmd:identificationInfo',
+                              'gmd:MD_DataIdentification',
+                              'gmd:descriptiveKeywords',
+                              'gmd:MD_Keywords',
+                              'gmd:keyword',
+                              'gco:CharacterString')]}
         msg = 'LoaderConfig.ckan_mapper not as expected'
         self.assertDictEqual(received, expected, msg)
 

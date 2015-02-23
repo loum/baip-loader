@@ -265,11 +265,14 @@ class Loader(object):
 
         """
         level = levels.pop(0)
+        log.debug('Extracting level: %s' % level)
+
+        nest = None
+
         if isinstance(xml_data, dict):
-            log.debug('Extracting level: %s' % level)
             nest = xml_data.get(level)
-        else:
-            nest = None
+        elif isinstance(xml_data, list):
+            nest = [i.get(level) for i in xml_data if i is not None]
 
         if len(levels) > 0 and nest is not None:
             nest = Loader.extract_iso19115_field(levels, nest)
@@ -277,24 +280,29 @@ class Loader(object):
         return nest
 
     def iso19115_to_ckan_map(self, xml_data):
-        """Pull out the required CKAN fields from the source *xml_data*
+        """Pull out the required CKAN fields from the source *xml_data*.
 
         **Args:**
             *xml_data*: the source ISO19115 data (in a dictionary
             data structure representation)
 
         **Returns:**
-            the CKAN data in a dictionary structure
+            the CKAN data in a dictionary of lists structure
 
         """
         ckan_data = {}
 
-        for key, value in self.ckan_mapper.iteritems():
-            # TODO -- only support single item list.
+        for key, values in self.ckan_mapper.iteritems():
             log.info('Performing map for CKAN field: "%s"' % key)
-            levels = value[0].split('|')
 
-            field_value = Loader.extract_iso19115_field(levels, xml_data)
-            ckan_data[key] = field_value
+            field_values = []
+            for value in values:
+                log.debug('Nest: %s' % value)
+                levels = value.split('|')
+                field_value = Loader.extract_iso19115_field(levels,
+                                                            xml_data)
+                field_values.append(field_value)
+
+            ckan_data[key] = field_values
 
         return ckan_data

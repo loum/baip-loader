@@ -202,7 +202,7 @@ class TestLoader(unittest2.TestCase):
         self.assertIsNone(received, msg)
 
     def test_extract_iso19115_field_bad_level(self):
-        """ISO19115 field extraction: bad level
+        """ISO19115 field extraction: bad level.
         """
         # Given a dictionary
         xml_data = ISO19115_ITEM
@@ -221,34 +221,89 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 extract from empty dictionary error'
         self.assertIsNone(received, msg)
 
+    def test_extract_iso19115_field_level_as_list(self):
+        """ISO19115 field extraction: level as list.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when I source levels that feature a nested list
+        levels = ['gmd:identificationInfo',
+                  'gmd:MD_DataIdentification',
+                  'gmd:descriptiveKeywords',
+                  'gmd:MD_Keywords',
+                  'gmd:keyword',
+                  'gco:CharacterString']
+
+        # and I perform a mapping request
+        received = baip_loader.Loader.extract_iso19115_field(levels,
+                                                             xml_data)
+
+        # then data should be extracted
+        expected = [u'Victoria']
+        msg = 'ISO19115 extract from dictionary with nested list error'
+        self.assertListEqual(received, expected, msg)
+
     def test_iso19115_to_ckan_map(self):
         """CSIRO ISO19115 to CKAN map.
         """
         # Given a dictionary
         xml_data = ISO19115_ITEM
 
-        # when I perform a mapping request
+        # when the ANZLIC map source fields are defined
         levels = {'title': ['%s|%s|%s|%s|%s|%s' %
-                  ('gmd:identificationInfo',
-                   'gmd:MD_DataIdentification',
-                   'gmd:citation',
-                   'gmd:CI_Citation',
-                   'gmd:title',
-                   'gco:CharacterString')],
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:citation',
+                             'gmd:CI_Citation',
+                             'gmd:title',
+                             'gco:CharacterString')],
                   'description': ['%s|%s|%s|%s' %
-                  ('gmd:identificationInfo',
-                   'gmd:MD_DataIdentification',
-                   'gmd:abstract',
-                   'gco:CharacterString')]}
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:abstract',
+                             'gco:CharacterString')]}
+
+        # and I perform a mapping request
         loader = baip_loader.Loader()
         loader.ckan_mapper = levels
         received = loader.iso19115_to_ckan_map(xml_data)
         # Truncate the long description ...
-        received['description'] = received['description'][:30] + ' ...'
+        received['description'][0] = received['description'][0][:30] + '...'
 
         # then CKAN data should be extracted
-        expected = {'title': u'Victorian Aquifer Framework - Salinity',
-                    'description': u'[This data and its metadata st ...'}
+        expected = {'title': [u'Victorian Aquifer Framework - Salinity'],
+                    'description': [u'[This data and its metadata st...']}
+        msg = 'ISO19115 to CKAN map error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_multi_source(self):
+        """CSIRO ISO19115 to CKAN map: multi-source.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ANZLIC map column features multiple sources fields
+        levels = {'tags': ['%s|%s|%s|%s' %
+                           ('gmd:identificationInfo',
+                            'gmd:MD_DataIdentification',
+                            'gmd:topicCategory',
+                            'gmd:MD_TopicCategoryCode'),
+                           '%s|%s|%s|%s|%s|%s' %
+                           ('gmd:identificationInfo',
+                            'gmd:MD_DataIdentification',
+                            'gmd:descriptiveKeywords',
+                            'gmd:MD_Keywords',
+                            'gmd:keyword',
+                            'gco:CharacterString')]}
+
+        # when I perform a keyword mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # then CKAN data should be extracted
+        expected = {'tags': [u'inlandWaters', [u'Victoria']]}
         msg = 'ISO19115 to CKAN map error'
         self.assertDictEqual(received, expected, msg)
 
