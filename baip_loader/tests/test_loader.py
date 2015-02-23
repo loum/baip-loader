@@ -307,6 +307,32 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_language(self):
+        """CSIRO ISO19115 to CKAN map.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper language field is mapped to the
+        # MD_Metadata.identificationInfo:MD_DataIdentification.language
+        # ISO19115 element
+        levels = {'language': ['%s|%s|%s|%s' %
+                               ('gmd:identificationInfo',
+                                'gmd:MD_DataIdentification',
+                                'gmd:language',
+                                'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'language': [u'eng']}
+        msg = 'ISO19115 to CKAN map error: language'
+        self.assertDictEqual(received, expected, msg)
+
     @classmethod
     def tearDownClass(cls):
         cls._source_dir = None
