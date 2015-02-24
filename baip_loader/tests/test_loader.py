@@ -363,6 +363,34 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: licence'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_update_frequency(self):
+        """CSIRO ISO19115 to CKAN map: update_frequency.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper update_frequency field is mapped to the
+        # MD_LegalConstraints ISO19115 element
+        levels = {'update_frequency': ['%s|%s|%s|%s|%s|%s|%s' %
+                                       ('gmd:identificationInfo',
+                                        'gmd:MD_DataIdentification',
+                                        'gmd:resourceMaintenance',
+                                        'gmd:MD_MaintenanceInformation',
+                                        'gmd:maintenanceAndUpdateFrequency',
+                                        'gmd:MD_MaintenanceFrequencyCode',
+                                        '#text')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'update_frequency': [u'asNeeded']}
+        msg = 'ISO19115 to CKAN map error: update_frequency'
+        self.assertDictEqual(received, expected, msg)
+
     @classmethod
     def tearDownClass(cls):
         cls._source_dir = None
