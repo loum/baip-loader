@@ -1,5 +1,6 @@
 import unittest2
 import os
+import json
 import tempfile
 
 import baip_loader
@@ -308,7 +309,7 @@ class TestLoader(unittest2.TestCase):
         self.assertDictEqual(received, expected, msg)
 
     def test_iso19115_to_ckan_map_language(self):
-        """CSIRO ISO19115 to CKAN map.
+        """CSIRO ISO19115 to CKAN map: language.
         """
         # Given a dictionary
         xml_data = ISO19115_ITEM
@@ -331,6 +332,35 @@ class TestLoader(unittest2.TestCase):
         # structure
         expected = {'language': [u'eng']}
         msg = 'ISO19115 to CKAN map error: language'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_licence(self):
+        """CSIRO ISO19115 to CKAN map: licence.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper language field is mapped to the
+        # MD_LegalConstraints ISO19115 element
+        levels = {'licence': ['%s|%s|%s|%s|%s|%s' %
+                              ('gmd:identificationInfo',
+                               'gmd:MD_DataIdentification',
+                               'gmd:resourceConstraints',
+                               'gmd:MD_LegalConstraints',
+                               'gmd:useLimitation',
+                               'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        json_fh = open(os.path.join(self._results_dir,
+                                    'iso19115-ckan-mapper-licence.json'))
+        expected = json.load(json_fh)
+        msg = 'ISO19115 to CKAN map error: licence'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod

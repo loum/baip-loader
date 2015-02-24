@@ -272,7 +272,7 @@ class Loader(object):
         if isinstance(xml_data, dict):
             nest = xml_data.get(level)
         elif isinstance(xml_data, list):
-            nest = [i.get(level) for i in xml_data if i is not None]
+            nest = [i.get(level) for i in xml_data if isinstance(i, dict)]
 
         if len(levels) > 0 and nest is not None:
             nest = Loader.extract_iso19115_field(levels, nest)
