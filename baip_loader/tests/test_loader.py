@@ -591,6 +591,68 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: publisher'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_download_jurisdiction(self):
+        """CSIRO ISO19115 to CKAN map: jurisdiction.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_URL
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_GeographicDescription ISO19115 element
+        levels = {'jurisdiction': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
+                                   ('gmd:identificationInfo',
+                                    'gmd:MD_DataIdentification',
+                                    'gmd:extent',
+                                    'gmd:EX_Extent',
+                                    'gmd:geographicElement',
+                                    'gmd:EX_GeographicDescription',
+                                    'gmd:geographicIdentifier',
+                                    'gmd:MD_Identifier',
+                                    'gmd:code',
+                                    'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'jurisdiction': [['NSW']]}
+        msg = 'ISO19115 to CKAN map error: jurisdiction'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_download_jurisdiction_missing(self):
+        """CSIRO ISO19115 to CKAN map: jurisdiction missing.
+        """
+        # Given a dictionary with missing jurisdiction
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_GeographicDescription ISO19115 element
+        levels = {'jurisdiction': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
+                                   ('gmd:identificationInfo',
+                                    'gmd:MD_DataIdentification',
+                                    'gmd:extent',
+                                    'gmd:EX_Extent',
+                                    'gmd:geographicElement',
+                                    'gmd:EX_GeographicDescription',
+                                    'gmd:geographicIdentifier',
+                                    'gmd:MD_Identifier',
+                                    'gmd:code',
+                                    'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'jurisdiction': [None]}
+        msg = 'ISO19115 to CKAN map error: jurisdiction missing'
+        self.assertDictEqual(received, expected, msg)
+
     def test_extract_iso19115_dates(self):
         """The ISO19115 XML dates come through in a convuluted format, I
         think targetted towards some kind of XPath extraction.  Because
