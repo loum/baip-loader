@@ -451,14 +451,14 @@ class TestLoader(unittest2.TestCase):
         # when the ckan_mapper download_url field is mapped to the
         # MD_Metadata.fileIdentifier ISO19115 element
         levels = {'download_url': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
-                                      ('gmd:distributionInfo',
-                                       'gmd:MD_Distribution',
-                                       'gmd:distributor',
-                                       'gmd:MD_Distributor',
-                                       'gmd:distributorTransferOptions',
-                                       'gmd:MD_DigitalTransferOptions',
-                                       'gmd:onLine',
-                                       'gmd:CI_OnlineResource',
+                                   ('gmd:distributionInfo',
+                                    'gmd:MD_Distribution',
+                                    'gmd:distributor',
+                                    'gmd:MD_Distributor',
+                                    'gmd:distributorTransferOptions',
+                                    'gmd:MD_DigitalTransferOptions',
+                                    'gmd:onLine',
+                                    'gmd:CI_OnlineResource',
                                        'gmd:linkage',
                                        'gmd:URL')]}
 
@@ -482,16 +482,16 @@ class TestLoader(unittest2.TestCase):
         # when the ckan_mapper download_url field is mapped to the
         # MD_Metadata.fileIdentifier ISO19115 element
         levels = {'download_url': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
-                                      ('gmd:distributionInfo',
-                                       'gmd:MD_Distribution',
-                                       'gmd:distributor',
-                                       'gmd:MD_Distributor',
-                                       'gmd:distributorTransferOptions',
-                                       'gmd:MD_DigitalTransferOptions',
-                                       'gmd:onLine',
-                                       'gmd:CI_OnlineResource',
-                                       'gmd:linkage',
-                                       'gmd:URL')]}
+                                   ('gmd:distributionInfo',
+                                    'gmd:MD_Distribution',
+                                    'gmd:distributor',
+                                    'gmd:MD_Distributor',
+                                    'gmd:distributorTransferOptions',
+                                    'gmd:MD_DigitalTransferOptions',
+                                    'gmd:onLine',
+                                    'gmd:CI_OnlineResource',
+                                    'gmd:linkage',
+                                    'gmd:URL')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
@@ -513,14 +513,14 @@ class TestLoader(unittest2.TestCase):
         # when the ckan_mapper download_url field is mapped to the
         # MD_Metadata.fileIdentifier ISO19115 element
         levels = {'file_size': ['%s|%s|%s|%s|%s|%s|%s|%s' %
-                                    ('gmd:distributionInfo',
-                                     'gmd:MD_Distribution',
-                                     'gmd:distributor',
-                                     'gmd:MD_Distributor',
-                                     'gmd:distributorTransferOptions',
-                                     'gmd:MD_DigitalTransferOptions',
-                                     'gmd:transferSize',
-                                     'gco:Real')]}
+                                ('gmd:distributionInfo',
+                                 'gmd:MD_Distribution',
+                                 'gmd:distributor',
+                                 'gmd:MD_Distributor',
+                                 'gmd:distributorTransferOptions',
+                                 'gmd:MD_DigitalTransferOptions',
+                                 'gmd:transferSize',
+                                 'gco:Real')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
@@ -542,14 +542,14 @@ class TestLoader(unittest2.TestCase):
         # when the ckan_mapper download_url field is mapped to the
         # MD_Metadata.fileIdentifier ISO19115 element
         levels = {'file_size': ['%s|%s|%s|%s|%s|%s|%s|%s' %
-                                    ('gmd:distributionInfo',
-                                     'gmd:MD_Distribution',
-                                     'gmd:distributor',
-                                     'gmd:MD_Distributor',
-                                     'gmd:distributorTransferOptions',
-                                     'gmd:MD_DigitalTransferOptions',
-                                     'gmd:transferSize',
-                                     'gco:Real')]}
+                                ('gmd:distributionInfo',
+                                 'gmd:MD_Distribution',
+                                 'gmd:distributor',
+                                 'gmd:MD_Distributor',
+                                 'gmd:distributorTransferOptions',
+                                 'gmd:MD_DigitalTransferOptions',
+                                 'gmd:transferSize',
+                                 'gco:Real')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
@@ -560,6 +560,35 @@ class TestLoader(unittest2.TestCase):
         # structure
         expected = {'file_size': [None]}
         msg = 'ISO19115 to CKAN map error: file_size missing'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_publisher(self):
+        """CSIRO ISO19115 to CKAN map: publisher.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper download_url field is mapped to the
+        # MD_Metadata.fileIdentifier ISO19115 element
+        levels = {'publisher': ['%s|%s|%s|%s' %
+                                ('gmd:contact',
+                                 'gmd:CI_ResponsibleParty',
+                                 'gmd:organisationName',
+                                 'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {
+            'publisher': [
+                u'VIC - Department of Environment and Primary Industries'
+            ]
+        }
+        msg = 'ISO19115 to CKAN map error: publisher'
         self.assertDictEqual(received, expected, msg)
 
     def test_extract_iso19115_dates(self):
