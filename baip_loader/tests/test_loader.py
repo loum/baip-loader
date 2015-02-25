@@ -391,6 +391,34 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: update_frequency'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_dates(self):
+        """CSIRO ISO19115 to CKAN map: dates.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper update_frequency field is mapped to the
+        # MD_LegalConstraints ISO19115 element
+        levels = {'dates': ['%s|%s|%s|%s|%s' %
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:citation',
+                             'gmd:CI_Citation',
+                             'gmd:date')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        json_fh = open(os.path.join(self._results_dir,
+                                    'iso19115-ckan-mapper-dates.json'))
+        expected = json.load(json_fh)
+        msg = 'ISO19115 to CKAN map error: dates'
+        self.assertDictEqual(received, expected, msg)
+
     def test_extract_iso19115_dates(self):
         """The ISO19115 XML dates come through in a convuluted format, I
         think targetted towards some kind of XPath extraction.  Because
