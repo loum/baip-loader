@@ -661,7 +661,7 @@ class TestLoader(unittest2.TestCase):
         xml_data = ISO19115_ITEM_TEMPORAL
 
         # when the ckan_mapper download_url field is mapped to the
-        # ...:EX_GeographicDescription ISO19115 element
+        # ...:EX_Extent.temporalElement ISO19115 element
         levels = {
             'temporal_coverage_from': [
                 '%s|%s|%s|%s|%s|%s|%s|%s|%s' % ('gmd:identificationInfo',
@@ -694,7 +694,7 @@ class TestLoader(unittest2.TestCase):
         xml_data = ISO19115_ITEM
 
         # when the ckan_mapper download_url field is mapped to the
-        # ...:EX_GeographicDescription ISO19115 element
+        # ...:EX_Extent.temporalElement ISO19115 element
         levels = {
             'temporal_coverage_from': [
                 '%s|%s|%s|%s|%s|%s|%s|%s|%s' % ('gmd:identificationInfo',
@@ -718,6 +718,72 @@ class TestLoader(unittest2.TestCase):
         # structure
         expected = {'temporal_coverage_from': [None]}
         msg = 'ISO19115 to CKAN map error: temporal_coverage_from missing'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_download_temporal_coverage_to(self):
+        """CSIRO ISO19115 to CKAN map: temporal_coverage_to.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_TEMPORAL
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_Extent.temporalElement ISO19115 element
+        levels = {
+            'temporal_coverage_from': [
+                '%s|%s|%s|%s|%s|%s|%s|%s|%s' % ('gmd:identificationInfo',
+                                                'gmd:MD_DataIdentification',
+                                                'gmd:extent',
+                                                'gmd:EX_Extent',
+                                                'gmd:temporalElement',
+                                                'gmd:EX_TemporalExtent',
+                                                'gmd:extent',
+                                                'gml:TimePeriod',
+                                                'gml:endPosition')
+            ]
+        }
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'temporal_coverage_from': [['2008-04-01T23:04:00']]}
+        msg = 'ISO19115 to CKAN map error: temporal_coverage_to'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_download_temporal_coverage_to_missing(self):
+        """CSIRO ISO19115 to CKAN map: temporal_coverage_to missing.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_Extent.temporalElement ISO19115 element
+        levels = {
+            'temporal_coverage_from': [
+                '%s|%s|%s|%s|%s|%s|%s|%s|%s' % ('gmd:identificationInfo',
+                                                'gmd:MD_DataIdentification',
+                                                'gmd:extent',
+                                                'gmd:EX_Extent',
+                                                'gmd:temporalElement',
+                                                'gmd:EX_TemporalExtent',
+                                                'gmd:extent',
+                                                'gml:TimePeriod',
+                                                'gml:endPosition')
+            ]
+        }
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'temporal_coverage_from': [None]}
+        msg = 'ISO19115 to CKAN map error: temporal_coverage_to missing'
         self.assertDictEqual(received, expected, msg)
 
     def test_extract_iso19115_dates(self):
