@@ -260,10 +260,10 @@ class TestLoader(unittest2.TestCase):
                              'gmd:title',
                              'gco:CharacterString')],
                   'description': ['%s|%s|%s|%s' %
-                            ('gmd:identificationInfo',
-                             'gmd:MD_DataIdentification',
-                             'gmd:abstract',
-                             'gco:CharacterString')]}
+                                  ('gmd:identificationInfo',
+                                   'gmd:MD_DataIdentification',
+                                   'gmd:abstract',
+                                   'gco:CharacterString')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
@@ -389,6 +389,29 @@ class TestLoader(unittest2.TestCase):
         # structure
         expected = {'update_frequency': [u'asNeeded']}
         msg = 'ISO19115 to CKAN map error: update_frequency'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_extract_iso19115_dates(self):
+        """The ISO19115 XML dates come through in a convuluted format, I
+        think targetted towards some kind of XPath extraction.  Because
+        we ditch XML in favor of JSON at the earliest possible
+        opportunity (i.e. step 1) we are left with an awkward
+        dictionary structure.  This e
+        """
+        # Given a ISO19115 dates based dictionary
+        json_dates_fh = open(os.path.join(self._results_dir,
+                                          'iso19115-ckan-mapper-dates.json'))
+        dates = json.load(json_dates_fh)
+
+        # when I extract the "creation", "publication" and "revision" dates
+        received = baip_loader.Loader.extract_iso19115_dates(dates)
+
+        # then I should receive a dictionary of the form
+        # {<date_type>, <ISO_8660_date>, ...}
+        expected = {'publication': '2014-10-24',
+                    'revision': '2015-02-10',
+                    'creation': '2015-02-10'}
+        msg = 'ISO19115 dates extraction error'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod

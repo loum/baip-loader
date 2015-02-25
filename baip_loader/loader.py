@@ -306,3 +306,54 @@ class Loader(object):
             ckan_data[key] = field_values
 
         return ckan_data
+
+    @staticmethod
+    def extract_iso19115_dates(iso19115_dates):
+        """The ISO19115 XML dates come through in a convuluted format, I
+        think targeted towards some kind of XPath extraction.  Because
+        we ditch XML in favor of JSON at the earliest possible
+        opportunity (i.e. step 1) we are left with an awkward
+        dictionary structure.  (I really don't understand the reason for
+        embedding such complexity in this structure -- madness!)
+
+        This method tries to untangle the ISO19115 date structure and
+        return a sane dictionary representation of the creation,
+        publication and revision dates in the format::
+
+            {'publication': '<YYYY-MM-DD>',
+             'revision': '<YYYY-MM-DD>',
+             'creation': '<YYYY-MM-DD>'}
+
+        **Args:**
+            *iso19115_dates*: the nested date structure in JSON
+            format
+
+        **Returns:**
+            creation, publication and revision dates in the format::
+
+                {'publication': '<YYYY-MM-DD>',
+                 'revision': '<YYYY-MM-DD>',
+                 'creation': '<YYYY-MM-DD>'}
+
+        """
+        type_code_levels = ['gmd:CI_Date',
+                            'gmd:dateType',
+                            'gmd:CI_DateTypeCode',
+                            '#text']
+        date_levels = ['gmd:CI_Date',
+                       'gmd:date',
+                       'gco:Date']
+
+        dates = {}
+
+        for ci_dates in iso19115_dates.values()[0]:
+            for ci_date in ci_dates:
+                levels = list(type_code_levels)
+                date_type = Loader.extract_iso19115_field(levels, ci_date)
+
+                if date_type in ['creation', 'revision', 'publication']:
+                    levels = list(date_levels)
+                    date = Loader.extract_iso19115_field(levels, ci_date)
+                    dates[date_type] = date
+
+        return dates
