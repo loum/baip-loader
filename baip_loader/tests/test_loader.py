@@ -5,6 +5,7 @@ import tempfile
 
 import baip_loader
 from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
+from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 
 
 class TestLoader(unittest2.TestCase):
@@ -417,6 +418,90 @@ class TestLoader(unittest2.TestCase):
                                     'iso19115-ckan-mapper-dates.json'))
         expected = json.load(json_fh)
         msg = 'ISO19115 to CKAN map error: dates'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_id(self):
+        """CSIRO ISO19115 to CKAN map: id.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper update_frequency field is mapped to the
+        # MD_Metadata.fileIdentifier ISO19115 element
+        levels = {'id': ['%s|%s' % ('gmd:fileIdentifier',
+                                    'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'id': [u'DD006FCE-BEF5-4377-82AE-2C5A14B50E34']}
+        msg = 'ISO19115 to CKAN map error: id'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_download_url(self):
+        """CSIRO ISO19115 to CKAN map: download_url.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_URL
+
+        # when the ckan_mapper download_url field is mapped to the
+        # MD_Metadata.fileIdentifier ISO19115 element
+        levels = {'download_url': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
+                                      ('gmd:distributionInfo',
+                                       'gmd:MD_Distribution',
+                                       'gmd:distributor',
+                                       'gmd:MD_Distributor',
+                                       'gmd:distributorTransferOptions',
+                                       'gmd:MD_DigitalTransferOptions',
+                                       'gmd:onLine',
+                                       'gmd:CI_OnlineResource',
+                                       'gmd:linkage',
+                                       'gmd:URL')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'download_url': [u'n/a']}
+        msg = 'ISO19115 to CKAN map error: download_url'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_iso19115_to_ckan_map_download_url_missing(self):
+        """CSIRO ISO19115 to CKAN map: download_url missing.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper download_url field is mapped to the
+        # MD_Metadata.fileIdentifier ISO19115 element
+        levels = {'download_url': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
+                                      ('gmd:distributionInfo',
+                                       'gmd:MD_Distribution',
+                                       'gmd:distributor',
+                                       'gmd:MD_Distributor',
+                                       'gmd:distributorTransferOptions',
+                                       'gmd:MD_DigitalTransferOptions',
+                                       'gmd:onLine',
+                                       'gmd:CI_OnlineResource',
+                                       'gmd:linkage',
+                                       'gmd:URL')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'download_url': [None]}
+        msg = 'ISO19115 to CKAN map error: download_url'
         self.assertDictEqual(received, expected, msg)
 
     def test_extract_iso19115_dates(self):
