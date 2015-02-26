@@ -786,6 +786,42 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: temporal_coverage_to missing'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_spatial_coverage_polygon(self):
+        """CSIRO ISO19115 to CKAN map: spatial_coverage - polygon.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_TEMPORAL
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_Extent.temporalElement ISO19115 element
+        levels = {'polygon': [ '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
+                              ('gmd:identificationInfo',
+                               'gmd:MD_DataIdentification',
+                               'gmd:extent',
+                               'gmd:EX_Extent',
+                               'gmd:geographicElement',
+                               'gmd:EX_BoundingPolygon',
+                               'gmd:polygon',
+                               'gml:Polygon',
+                               'gml:exterior',
+                               'gml:LinearRing',
+                               'gml:pos')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'polygon': [[['110.0012 -10.00117',
+                                  '115.008 -10.00117',
+                                  '155.008 -45.00362',
+                                  '110.0012 -45.00362',
+                                  '110.0012 -10.00117']]]}
+        msg = 'ISO19115 to CKAN map error: spatial polygon'
+        self.assertDictEqual(received, expected, msg)
+
     def test_extract_iso19115_dates(self):
         """The ISO19115 XML dates come through in a convuluted format, I
         think targetted towards some kind of XPath extraction.  Because
