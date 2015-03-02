@@ -974,6 +974,31 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: spatial bbox:south'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_topic(self):
+        """CSIRO ISO19115 to CKAN map: topic.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_TEMPORAL
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_Extent.temporalElement ISO19115 element
+        levels = {'topic': ['%s|%s|%s|%s' %
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:topicCategory',
+                             'gmd:MD_TopicCategoryCode')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'topic': ['environment']}
+        msg = 'ISO19115 to CKAN map error: topic'
+        self.assertDictEqual(received, expected, msg)
+
     def test_extract_iso19115_dates(self):
         """The ISO19115 XML dates come through in a convuluted format, I
         think targetted towards some kind of XPath extraction.  Because
