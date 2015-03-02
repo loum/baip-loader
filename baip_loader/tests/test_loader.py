@@ -999,6 +999,43 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: topic'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_fields_of_interest(self):
+        """CSIRO ISO19115 to CKAN map: fields_of_interest.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_TEMPORAL
+
+        # when the ckan_mapper download_url field is mapped to the
+        # ...:EX_Extent.temporalElement ISO19115 element
+        levels = {'fields_of_interest': ['%s|%s|%s|%s|%s|%s' %
+                                         ('gmd:identificationInfo',
+                                          'gmd:MD_DataIdentification',
+                                          'gmd:descriptiveKeywords',
+                                          'gmd:MD_Keywords',
+                                          'gmd:keyword',
+                                          'gco:CharacterString'),
+                                         '%s|%s|%s|%s|%s|%s|%s|%s' %
+                                         ('gmd:identificationInfo',
+                                          'gmd:MD_DataIdentification',
+                                          'gmd:descriptiveKeywords',
+                                          'gmd:MD_Keywords',
+                                          'gmd:thesaurusName',
+                                          'gmd:CI_Citation',
+                                          'gmd:title',
+                                          'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'fields_of_interest': [['Australia'],
+                                           ['ANZLIC Jurisdictions']]}
+        msg = 'ISO19115 to CKAN map error: fields_of_interest'
+        self.assertDictEqual(received, expected, msg)
+
     def test_extract_iso19115_dates(self):
         """The ISO19115 XML dates come through in a convuluted format, I
         think targetted towards some kind of XPath extraction.  Because
