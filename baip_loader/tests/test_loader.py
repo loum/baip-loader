@@ -7,6 +7,7 @@ import baip_loader
 from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
 from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
+from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
 
 
 class TestLoader(unittest2.TestCase):
@@ -794,43 +795,7 @@ class TestLoader(unittest2.TestCase):
 
         # when the ckan_mapper download_url field is mapped to the
         # ...:EX_Extent.temporalElement ISO19115 element
-        levels = {'polygon': [ '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
-                              ('gmd:identificationInfo',
-                               'gmd:MD_DataIdentification',
-                               'gmd:extent',
-                               'gmd:EX_Extent',
-                               'gmd:geographicElement',
-                               'gmd:EX_BoundingPolygon',
-                               'gmd:polygon',
-                               'gml:Polygon',
-                               'gml:exterior',
-                               'gml:LinearRing',
-                               'gml:pos')]}
-
-        # and I perform a mapping request
-        loader = baip_loader.Loader()
-        loader.ckan_mapper = levels
-        received = loader.iso19115_to_ckan_map(xml_data)
-
-        # the the element value should be mapped to the JSON ingest data
-        # structure
-        expected = {'polygon': [[['110.0012 -10.00117',
-                                  '115.008 -10.00117',
-                                  '155.008 -45.00362',
-                                  '110.0012 -45.00362',
-                                  '110.0012 -10.00117']]]}
-        msg = 'ISO19115 to CKAN map error: spatial polygon'
-        self.assertDictEqual(received, expected, msg)
-
-    def test_iso19115_to_ckan_map_spatial_coverage_polygon(self):
-        """CSIRO ISO19115 to CKAN map: spatial_coverage - polygon.
-        """
-        # Given a dictionary
-        xml_data = ISO19115_ITEM_TEMPORAL
-
-        # when the ckan_mapper download_url field is mapped to the
-        # ...:EX_Extent.temporalElement ISO19115 element
-        levels = {'polygon': [ '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
+        levels = {'polygon': ['%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s' %
                               ('gmd:identificationInfo',
                                'gmd:MD_DataIdentification',
                                'gmd:extent',
@@ -1037,11 +1002,7 @@ class TestLoader(unittest2.TestCase):
         self.assertDictEqual(received, expected, msg)
 
     def test_extract_iso19115_dates(self):
-        """The ISO19115 XML dates come through in a convuluted format, I
-        think targetted towards some kind of XPath extraction.  Because
-        we ditch XML in favor of JSON at the earliest possible
-        opportunity (i.e. step 1) we are left with an awkward
-        dictionary structure.  This e
+        """Extract ISO19115 XML dates.
         """
         # Given a ISO19115 dates based dictionary
         json_dates_fh = open(os.path.join(self._results_dir,
@@ -1056,6 +1017,28 @@ class TestLoader(unittest2.TestCase):
         expected = {'publication': '2014-10-24',
                     'revision': '2015-02-10',
                     'creation': '2015-02-10'}
+        msg = 'ISO19115 dates extraction error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_ckan_map(self):
+        """Map an ISO19115 record to a CKAN dictionary data structure.
+        """
+        # Given an ISO19115 XML data structure
+        xml_data = ISO19115_ITEM_TEMPORAL
+
+        # and a CKAN mapping rule set in the configuration file
+        conf_file = os.path.join('baip_loader', 'conf', 'loader.conf')
+        conf = baip_loader.LoaderConfig(conf_file)
+        conf.parse_config()
+
+        # when I map the ckan_mapper fields to an ISO19115 record
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = conf.ckan_mapper
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the ISO19115 values should be mapped to the CKAN ingest
+        # data structure
+        expected = MAP_ALL_FIELDS
         msg = 'ISO19115 dates extraction error'
         self.assertDictEqual(received, expected, msg)
 
