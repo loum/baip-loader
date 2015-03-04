@@ -8,6 +8,7 @@ from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
 from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
+from baip_loader.tests.results.ckan_sanitised_dates import SANITISED_DATES
 
 
 class TestLoader(unittest2.TestCase):
@@ -1007,9 +1008,10 @@ class TestLoader(unittest2.TestCase):
         # Given a ISO19115 dates based dictionary
         json_dates_fh = open(os.path.join(self._results_dir,
                                           'iso19115-ckan-mapper-dates.json'))
-        dates = json.load(json_dates_fh)
+        iso19115_dates = json.load(json_dates_fh)
 
         # when I extract the "creation", "publication" and "revision" dates
+        dates = iso19115_dates.get('dates')
         received = baip_loader.Loader.extract_iso19115_dates(dates)
 
         # then I should receive a dictionary of the form
@@ -1040,6 +1042,107 @@ class TestLoader(unittest2.TestCase):
         # data structure
         expected = MAP_ALL_FIELDS
         msg = 'ISO19115 dates extraction error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_sanitise(self):
+        """Sanitise CKAN-ready data structure.
+        """
+        # Given an extracted CKAN data structure
+        data = MAP_ALL_FIELDS
+
+        # when I sanitise the data
+        loader = baip_loader.Loader()
+        received = loader.sanitise(data)
+
+        # then the data values should be converted to a format that can
+        # be ingest into CKAN
+        expected = SANITISED_DATES
+        msg = 'CKAN sanitisation error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_extract_iso19115_spatial_with_polygon(self):
+        """Extract ISO19115 spatial: polygon.
+        """
+        # Given an ISO19115 XML spatial data structure
+        data = {
+            'bbox_east': [['155.008']],
+            'bbox_north': [['-10.00117']],
+            'bbox_south': [['-45.00362']],
+            'bbox_west': [['110.0012']],
+            'polygon': [
+                [
+                    '110.0012 -10.00117',
+                    '115.008 -10.00117',
+                    '155.008 -45.00362',
+                    '110.0012 -45.00362',
+                    '110.0012 -10.00117'
+                ]
+            ]
+        }
+
+        # when I extract the CKAN spatial component
+        received = baip_loader.Loader.extract_iso19115_spatial(data)
+
+        # then I should receive a dictionary of the form
+        # {'spatial_coverage': <spatial content>}
+        expected = {
+            'spatial_coverage': [
+                [
+                    '110.0012 -10.00117',
+                    '115.008 -10.00117',
+                    '155.008 -45.00362',
+                    '110.0012 -45.00362',
+                    '110.0012 -10.00117'
+                ]
+            ]
+        }
+        msg = 'ISO19115 spatial extraction error: polygon'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_extract_iso19115_spatial_with_bbox(self):
+        """Extract ISO19115 spatial: bbox.
+        """
+        # Given an ISO19115 XML spatial data structure
+        data = {
+            'bbox_east': [['155.008']],
+            'bbox_north': [['-10.00117']],
+            'bbox_south': [['-45.00362']],
+            'bbox_west': [['110.0012']],
+            'polygon': [[]]
+        }
+
+        # when I extract the CKAN spatial component
+        received = baip_loader.Loader.extract_iso19115_spatial(data)
+
+        # then I should receive a dictionary of the form
+        # {'spatial_coverage': <spatial content>}
+        expected = {
+            'spatial_coverage': [
+                '155.008', '-10.00117', '-45.00362', '110.0012',
+            ]
+        }
+        msg = 'ISO19115 spatial extraction error: bbox'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_extract_iso19115_spatial_with_no_spatial(self):
+        """Extract ISO19115 spatial: no spatial.
+        """
+        # Given an ISO19115 XML spatial data structure
+        data = {
+            'bbox_east': [[]],
+            'bbox_north': [[]],
+            'bbox_south': [[]],
+            'bbox_west': [[]],
+            'polygon': [[]]
+        }
+
+        # when I extract the CKAN spatial component
+        received = baip_loader.Loader.extract_iso19115_spatial(data)
+
+        # then I should receive a dictionary of the form
+        # {'spatial_coverage': <spatial content>}
+        expected = {}
+        msg = 'ISO19115 spatial extraction error: no spatial'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod

@@ -325,8 +325,25 @@ class Loader(object):
              'creation': '<YYYY-MM-DD>'}
 
         **Args:**
-            *iso19115_dates*: the nested date structure in JSON
-            format
+            *iso19115_dates*: list of nested ISO19115 ``gmd:CI_Date``
+            elements.  For example::
+
+                [
+                    {
+                        'gmd:CI_Date': {
+                            'gmd:date': {
+                                'gco:Date': '2015-02-10'
+                            },
+                            'gmd:dateType': {
+                                'gmd:CI_DateTypeCode': {
+                                    '#text': 'creation',
+                                    '@codeList': 'http://asdd.ga.gov.au...',
+                                    '@codeListValue': 'creation'
+                                }
+                            }
+                        }
+                    }
+                ]
 
         **Returns:**
             creation, publication and revision dates in the format::
@@ -346,14 +363,106 @@ class Loader(object):
 
         dates = {}
 
-        for ci_dates in iso19115_dates.values()[0]:
-            for ci_date in ci_dates:
-                levels = list(type_code_levels)
-                date_type = Loader.extract_iso19115_field(levels, ci_date)
+        log.debug('iso19115_dates: %s' % iso19115_dates)
+        for ci_date in iso19115_dates[0]:
+            levels = list(type_code_levels)
+            date_type = Loader.extract_iso19115_field(levels, ci_date)
 
-                if date_type in ['creation', 'revision', 'publication']:
-                    levels = list(date_levels)
-                    date = Loader.extract_iso19115_field(levels, ci_date)
-                    dates[date_type] = date
+            if date_type in ['creation', 'revision', 'publication']:
+                levels = list(date_levels)
+                date = Loader.extract_iso19115_field(levels, ci_date)
+                dates[date_type] = date
+
+        log.debug('Dates extracted from iso19115_dates: "%s"' % dates)
 
         return dates
+
+    def sanitise(self, ckan_data):
+        """The ISO19115 to CKAN extraction phase is a simple lookup of XML
+        element names and requires further consolidation via this
+        sanitisation phase so that it conforms to the CKAN ingest API
+        format.
+
+        **Args:**
+            *ckan_data*:
+
+        **Returns:**
+
+        """
+        sanitise_data = dict(ckan_data)
+
+        # Dates.
+        if ckan_data.get('dates') is not None:
+            dates = self.extract_iso19115_dates(sanitise_data.pop('dates',
+                                                                  None))
+            sanitise_data['date_released'] = dates.get('publication')
+            sanitise_data['date_updated'] = dates.get('revision')
+
+        return sanitise_data
+
+    @staticmethod
+    def extract_iso19115_spatial(ckan_data):
+        """There are multiple ISO19115 spatial formats which include
+        polygons and bounding boxes.  However, the CKAN interface
+        only provides an allocation for a single spatial type.
+
+        The CKAN spatial type supports points, polygons, bounding boxes
+        or a free-text Gazetteer type URL.  This method cycles through the
+        ISO19115 spatial types and identifies the target source value to
+        use.  The output format will be based on the spatial type used.
+
+        At this time, the method supports polygons and bounding boxes
+        with polygons having precedence over bounding boxes.
+
+        **Args:**
+            *ckan_data*:
+
+        **Returns:**
+            the modified *ckan_data* data structure with spatial content
+            modified as per the business rules
+
+        """
+        spatial_reduced_data = dict(ckan_data)
+
+        log.debug('Checking for polygon data ...')
+        if (spatial_reduced_data.get('polygon') is not None and
+           not Loader.empty(spatial_reduced_data.get('polygon'))):
+            polygon = spatial_reduced_data['polygon']
+            spatial_reduced_data['spatial_coverage'] = polygon
+            log.debug('Polygon data found: %s' % polygon)
+        else:
+            log.debug('Checking for bounding box data ...')
+            bbox = [spatial_reduced_data.get('bbox_east'),
+                    spatial_reduced_data.get('bbox_north'),
+                    spatial_reduced_data.get('bbox_south'),
+                    spatial_reduced_data.get('bbox_west')]
+            if None not in bbox:
+                spatial = spatial_reduced_data['spatial_coverage'] = []
+                for index in range(0, 4):
+                    if (not Loader.empty(bbox[index])):
+                        spatial.append(bbox[index][0][0])
+                    else:
+                        del spatial[:]
+                        spatial_reduced_data.pop('spatial_coverage', None)
+                        break
+
+                if not Loader.empty(spatial):
+                    log.debug('Bounding box data found: %s' % bbox)
+
+        # Remove temporary spatial values.
+        for key in ['polygon',
+                    'bbox_east',
+                    'bbox_north',
+                    'bbox_west',
+                    'bbox_south']:
+            spatial_reduced_data.pop(key, None)
+
+        return spatial_reduced_data
+
+    @staticmethod
+    def empty(seq):
+        for item in seq:
+            if not isinstance(item, list) or not Loader.empty(item):
+                return False
+
+        return True
