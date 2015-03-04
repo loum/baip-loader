@@ -8,7 +8,7 @@ from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
 from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
-from baip_loader.tests.results.ckan_sanitised_dates import SANITISED_DATES
+from baip_loader.tests.results.ckan_sanitised_dates import SANITISED_CKAN
 
 
 class TestLoader(unittest2.TestCase):
@@ -1056,7 +1056,7 @@ class TestLoader(unittest2.TestCase):
 
         # then the data values should be converted to a format that can
         # be ingest into CKAN
-        expected = SANITISED_DATES
+        expected = SANITISED_CKAN
         msg = 'CKAN sanitisation error'
         self.assertDictEqual(received, expected, msg)
 
@@ -1071,11 +1071,13 @@ class TestLoader(unittest2.TestCase):
             'bbox_west': [['110.0012']],
             'polygon': [
                 [
-                    '110.0012 -10.00117',
-                    '115.008 -10.00117',
-                    '155.008 -45.00362',
-                    '110.0012 -45.00362',
-                    '110.0012 -10.00117'
+                    [
+                        '110.0012 -10.00117',
+                        '115.008 -10.00117',
+                        '155.008 -45.00362',
+                        '110.0012 -45.00362',
+                        '110.0012 -10.00117'
+                    ]
                 ]
             ]
         }
@@ -1088,11 +1090,13 @@ class TestLoader(unittest2.TestCase):
         expected = {
             'spatial_coverage': [
                 [
-                    '110.0012 -10.00117',
-                    '115.008 -10.00117',
-                    '155.008 -45.00362',
-                    '110.0012 -45.00362',
-                    '110.0012 -10.00117'
+                    [
+                        '110.0012 -10.00117',
+                        '115.008 -10.00117',
+                        '155.008 -45.00362',
+                        '110.0012 -45.00362',
+                        '110.0012 -10.00117'
+                    ]
                 ]
             ]
         }
@@ -1108,7 +1112,7 @@ class TestLoader(unittest2.TestCase):
             'bbox_north': [['-10.00117']],
             'bbox_south': [['-45.00362']],
             'bbox_west': [['110.0012']],
-            'polygon': [[]]
+            'polygon': [[[]]]
         }
 
         # when I extract the CKAN spatial component
@@ -1133,7 +1137,7 @@ class TestLoader(unittest2.TestCase):
             'bbox_north': [[]],
             'bbox_south': [[]],
             'bbox_west': [[]],
-            'polygon': [[]]
+            'polygon': [[[]]]
         }
 
         # when I extract the CKAN spatial component

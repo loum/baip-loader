@@ -398,6 +398,11 @@ class Loader(object):
             sanitise_data['date_released'] = dates.get('publication')
             sanitise_data['date_updated'] = dates.get('revision')
 
+        # Spatial.
+        spatial_data = Loader.extract_iso19115_spatial(sanitise_data)
+        sanitise_data.clear()
+        sanitise_data = spatial_data
+
         return sanitise_data
 
     @staticmethod
