@@ -9,6 +9,7 @@ from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
 from baip_loader.tests.results.ckan_sanitised_dates import SANITISED_CKAN
+from baip_loader.tests.results.ckan_reformatted_dates import REFORMATTED_CKAN
 
 
 class TestLoader(unittest2.TestCase):
@@ -965,15 +966,15 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: topic'
         self.assertDictEqual(received, expected, msg)
 
-    def test_iso19115_to_ckan_map_fields_of_interest(self):
-        """CSIRO ISO19115 to CKAN map: fields_of_interest.
+    def test_iso19115_to_ckan_map_fields_of_research(self):
+        """CSIRO ISO19115 to CKAN map: fields_of_research.
         """
         # Given a dictionary
         xml_data = ISO19115_ITEM_TEMPORAL
 
         # when the ckan_mapper download_url field is mapped to the
         # ...:EX_Extent.temporalElement ISO19115 element
-        levels = {'fields_of_interest': ['%s|%s|%s|%s|%s|%s' %
+        levels = {'fields_of_research': ['%s|%s|%s|%s|%s|%s' %
                                          ('gmd:identificationInfo',
                                           'gmd:MD_DataIdentification',
                                           'gmd:descriptiveKeywords',
@@ -997,9 +998,9 @@ class TestLoader(unittest2.TestCase):
 
         # the the element value should be mapped to the JSON ingest data
         # structure
-        expected = {'fields_of_interest': [['Australia'],
+        expected = {'fields_of_research': [['Australia'],
                                            ['ANZLIC Jurisdictions']]}
-        msg = 'ISO19115 to CKAN map error: fields_of_interest'
+        msg = 'ISO19115 to CKAN map error: fields_of_research'
         self.assertDictEqual(received, expected, msg)
 
     def test_extract_iso19115_dates(self):
@@ -1147,6 +1148,21 @@ class TestLoader(unittest2.TestCase):
         # {'spatial_coverage': <spatial content>}
         expected = {}
         msg = 'ISO19115 spatial extraction error: no spatial'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_reformat(self):
+        """Re-format CKAN sanitised data structure.
+        """
+        # Given an extracted CKAN data structure
+        data = SANITISED_CKAN
+
+        # when I reformat the data
+        received = baip_loader.Loader.reformat(data)
+
+        # then the data values should be converted to a format that can
+        # be ingest into CKAN
+        expected = REFORMATTED_CKAN
+        msg = 'CKAN re-format error'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod

@@ -471,3 +471,50 @@ class Loader(object):
                 return False
 
         return True
+
+    @staticmethod
+    def reformat(sanitised_ckan_data):
+        """CKAN data formatting should occur after the craziness of the
+        CSIRO XML has passed through :meth:`Loader.sanitise`.
+
+        After being re-formatted, the CKAN data structure is ready for
+        ingest into CKAN.
+
+        **Args:**
+            *sanitised_ckan_data*:
+
+        **Returns:**
+            the re-formatted CKAN data ready for ingest
+
+        """
+        formatted_ckan_data = dict(sanitised_ckan_data)
+
+        for field, value in sanitised_ckan_data.iteritems():
+            nested = False
+            if not any(isinstance(el, list) for el in value):
+                # This is a single item.
+                if isinstance(value, list):
+                    if value[0] is None:
+                        formatted_ckan_data.pop(field, None)
+                    else:
+                        formatted_ckan_data[field] = value[0]
+            else:
+                values = Loader.flatten(value)
+                nested = True
+                formatted_ckan_data[field] = list(values)
+
+            log.debug('field "%s" nested? %s' % (field, nested))
+
+        return formatted_ckan_data
+
+    @staticmethod
+    def flatten(container):
+        for i in container:
+            if i is None:
+                continue
+
+            if isinstance(i, list) or isinstance(i, tuple):
+                for j in Loader.flatten(i):
+                    yield j
+            else:
+                yield i

@@ -1,5 +1,5 @@
 SANITISED_CKAN = {
-    'fields_of_interest': [
+    'fields_of_research': [
         ['Australia'],
         None
     ],
