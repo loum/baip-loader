@@ -19,5 +19,6 @@ REFORMATTED_CKAN = {
     'metadata_created': '2015-02-17',
     'organization': {
         'title': 'Geoscience Australia'
-    }
+    },
+    'revision_id': ['Version 2.1'],
 }

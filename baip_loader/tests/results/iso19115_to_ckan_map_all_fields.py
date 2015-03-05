@@ -75,5 +75,6 @@ MAP_ALL_FIELDS = {
     'name': ['Dynamic Land Cover Dataset'],
     'topic': ['environment'],
     'update_frequency': [None],
-    'organization|title': ['Geoscience Australia']
+    'organization|title': ['Geoscience Australia'],
+    'revision_id': [['Version 2.1']],
 }

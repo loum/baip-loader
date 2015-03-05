@@ -26,5 +26,6 @@ SANITISED_CKAN = {
     'date_released': '2015-02-17',
     'metadata_created': '2015-02-17',
     'contact_point': ['landcover@ga.gov.au'],
-    'organization|title': ['Geoscience Australia']
+    'organization|title': ['Geoscience Australia'],
+    'revision_id': [['Version 2.1']],
 }
