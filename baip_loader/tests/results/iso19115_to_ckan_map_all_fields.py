@@ -61,6 +61,7 @@ MAP_ALL_FIELDS = {
     'jurisdiction': [[]],
     'language': ['eng'],
     'licence': [None],
+    'metadata_modified': ['2015-02-17'],
     'polygon': [[['110.0012 -10.00117',
                   '115.008 -10.00117',
                   '155.008 -45.00362',

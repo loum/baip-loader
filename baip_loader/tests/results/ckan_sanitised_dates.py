@@ -12,6 +12,7 @@ SANITISED_CKAN = {
     'topic': ['environment'],
     'update_frequency': [None],
     'licence': [None],
+    'metadata_modified': ['2015-02-17'],
     'file_size': [None],
     'id': ['1556B944-731C-4B7F-A03E-14577C7E68DB'],
     'temporal_coverage_from': [['2000-04-01T00:04:00']],
