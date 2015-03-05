@@ -18,12 +18,13 @@ SANITISED_CKAN = {
     'temporal_coverage_from': [['2000-04-01T00:04:00']],
     'spatial_coverage': [[['110.0012 -10.00117', '115.008 -10.00117', '155.008 -45.00362', '110.0012 -45.00362', '110.0012 -10.00117']]],
     'language': ['eng'],
-    'title': ['Dynamic Land Cover Dataset'],
+    'name': ['Dynamic Land Cover Dataset'],
     'tags': ['environment', ['Australia']],
     'download_url': [None],
     'extras|telephone': [None],
     'theme': ['environment', ['Australia']],
     'date_released': '2015-02-17',
+    'metadata_created': '2015-02-17',
     'contact_point': ['landcover@ga.gov.au'],
     'organization|title': ['Geoscience Australia']
 }

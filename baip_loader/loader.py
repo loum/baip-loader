@@ -396,6 +396,7 @@ class Loader(object):
             dates = self.extract_iso19115_dates(sanitise_data.pop('dates',
                                                                   None))
             sanitise_data['date_released'] = dates.get('publication')
+            sanitise_data['metadata_created'] = dates.get('publication')
             sanitise_data['date_updated'] = dates.get('revision')
 
         # Spatial.

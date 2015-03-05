@@ -72,7 +72,7 @@ MAP_ALL_FIELDS = {
     'temporal_coverage_from': [['2000-04-01T00:04:00']],
     'temporal_coverage_to': [['2008-04-01T23:04:00']],
     'theme': ['environment', ['Australia']],
-    'title': ['Dynamic Land Cover Dataset'],
+    'name': ['Dynamic Land Cover Dataset'],
     'topic': ['environment'],
     'update_frequency': [None],
     'organization|title': ['Geoscience Australia']

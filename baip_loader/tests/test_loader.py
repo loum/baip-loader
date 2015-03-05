@@ -1003,7 +1003,7 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: fields_of_research'
         self.assertDictEqual(received, expected, msg)
 
-    def test_iso19115_to_ckan_map_orgaization_title(self):
+    def test_iso19115_to_ckan_map_organization_title(self):
         """CSIRO ISO19115 to CKAN map: organization[title].
         """
         # Given a dictionary
