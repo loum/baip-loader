@@ -20,6 +20,7 @@ SANITISED_CKAN = {
     'title': ['Dynamic Land Cover Dataset'],
     'tags': ['environment', ['Australia']],
     'download_url': [None],
+    'extras|telephone': [None],
     'theme': ['environment', ['Australia']],
     'date_released': '2015-02-17',
     'organization|title': ['Geoscience Australia']
