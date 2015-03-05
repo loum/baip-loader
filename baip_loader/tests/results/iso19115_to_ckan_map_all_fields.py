@@ -3,6 +3,7 @@ MAP_ALL_FIELDS = {
     'bbox_north': [['-10.00117']],
     'bbox_south': [['-45.00362']],
     'bbox_west': [['110.0012']],
+    'contact_point': ['landcover@ga.gov.au'],
     'dates': [
         [
             {

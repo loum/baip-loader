@@ -23,5 +23,6 @@ SANITISED_CKAN = {
     'extras|telephone': [None],
     'theme': ['environment', ['Australia']],
     'date_released': '2015-02-17',
+    'contact_point': ['landcover@ga.gov.au'],
     'organization|title': ['Geoscience Australia']
 }
