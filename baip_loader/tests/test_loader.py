@@ -1003,6 +1003,36 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: fields_of_research'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_orgaization_title(self):
+        """CSIRO ISO19115 to CKAN map: organization[title].
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM_TEMPORAL
+
+        # when the ckan_mapper organization|title field is mapped to the
+        # ...:gmd:CI_ResponsibleParty|gmd:organisationName
+        # ISO19115 element
+        levels = {'organization|title': ['%s|%s|%s|%s' %
+                                         ('gmd:contact',
+                                          'gmd:CI_ResponsibleParty',
+                                          'gmd:organisationName',
+                                          'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {
+            'organization|title': [
+                'Geoscience Australia'
+            ]
+        }
+        msg = 'ISO19115 to CKAN map error: organization|title'
+        self.assertDictEqual(received, expected, msg)
+
     def test_extract_iso19115_dates(self):
         """Extract ISO19115 XML dates.
         """

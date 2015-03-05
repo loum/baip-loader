@@ -71,5 +71,6 @@ MAP_ALL_FIELDS = {
     'theme': ['environment', ['Australia']],
     'title': ['Dynamic Land Cover Dataset'],
     'topic': ['environment'],
-    'update_frequency': [None]
+    'update_frequency': [None],
+    'organization|title': ['Geoscience Australia']
 }

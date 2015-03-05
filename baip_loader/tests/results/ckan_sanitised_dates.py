@@ -22,4 +22,5 @@ SANITISED_CKAN = {
     'download_url': [None],
     'theme': ['environment', ['Australia']],
     'date_released': '2015-02-17',
+    'organization|title': ['Geoscience Australia']
 }
