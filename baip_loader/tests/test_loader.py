@@ -1188,6 +1188,33 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: revision_id'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_notes(self):
+        """CSIRO ISO19115 to CKAN map: notes.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper contact_point field is mapped to the
+        # ...gmd:MD_DataIdentification.gmd:abstract
+        # ISO19115 element
+        levels = {'notes': ['%s|%s|%s|%s' %
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:abstract',
+                             'gco:CharacterString')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+        received['notes'][0] = received['notes'][0][:30] + '...'
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'notes': ['[This data and its metadata st...']}
+        msg = 'ISO19115 to CKAN map error: notes'
+        self.assertDictEqual(received, expected, msg)
+
     def test_sanitise(self):
         """Sanitise CKAN-ready data structure.
         """
