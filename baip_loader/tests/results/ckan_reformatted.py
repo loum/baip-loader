@@ -14,5 +14,7 @@ REFORMATTED_CKAN = {
     'tags': ['environment', 'Australia'],
     'theme': ['environment', 'Australia'],
     'date_released': '2015-02-17',
-    'organization|title': 'Geoscience Australia'
+    'organization': {
+        'title': 'Geoscience Australia'
+    }
 }

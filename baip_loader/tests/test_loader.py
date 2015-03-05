@@ -9,7 +9,7 @@ from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
 from baip_loader.tests.results.ckan_sanitised_dates import SANITISED_CKAN
-from baip_loader.tests.results.ckan_reformatted_dates import REFORMATTED_CKAN
+from baip_loader.tests.results.ckan_reformatted import REFORMATTED_CKAN
 
 
 class TestLoader(unittest2.TestCase):
@@ -1193,6 +1193,25 @@ class TestLoader(unittest2.TestCase):
         # be ingest into CKAN
         expected = REFORMATTED_CKAN
         msg = 'CKAN re-format error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_reformat_keys(self):
+        """Re-format CKAN sanitised data structure keys.
+        """
+        # Given an extracted CKAN data structure
+        data = {'organization|title': 'Geoscience Australia'}
+
+        # when I reformat the organization|title field
+        received = baip_loader.Loader.reformat_keys(data)
+
+        # then the data values should be converted to a format that can
+        # be ingest into CKAN
+        expected = {
+            'organization': {
+                'title': 'Geoscience Australia'
+            }
+        }
+        msg = 'CKAN re-format key error'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod

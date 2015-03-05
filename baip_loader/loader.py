@@ -477,11 +477,14 @@ class Loader(object):
         """CKAN data formatting should occur after the craziness of the
         CSIRO XML has passed through :meth:`Loader.sanitise`.
 
+        Also invokes the :meth:`reformat_keys` to convert the
+        multi-level keys into a nested dictionary structure.
+
         After being re-formatted, the CKAN data structure is ready for
         ingest into CKAN.
 
         **Args:**
-            *sanitised_ckan_data*:
+            *sanitised_ckan_data*: the sanitised CKAN data structure
 
         **Returns:**
             the re-formatted CKAN data ready for ingest
@@ -505,7 +508,50 @@ class Loader(object):
 
             log.debug('field "%s" nested? %s' % (field, nested))
 
+        formatted_ckan_keys = dict(formatted_ckan_data)
+        formatted_ckan_data = Loader.reformat_keys(formatted_ckan_keys)
+
         return formatted_ckan_data
+
+    @staticmethod
+    def reformat_keys(formatted_ckan_data):
+        """Cycle through the keys provided by *formatted_ckan_data*
+        and change a multi-part key values into a nested
+        dictionary structure.  A multi-part key value is denoted
+        by a separating ``|``.  For example::
+
+            # Old
+            DATA = {
+                'organization|title': 'Geoscience Australia'
+            }
+
+        ::
+
+            # New
+            DATA = {
+                'organization': {
+                    'title': 'Geoscience Australia'
+                }
+            }
+
+        **Args:**
+            *formatted_ckan_data*:
+
+        **Returns:**
+            the re-formated data structure with nested keys (if required)
+
+        """
+        formatted_keys = dict(formatted_ckan_data)
+
+        for keys, value in formatted_keys.iteritems():
+            nests = keys.split('|')
+            if len(nests) > 1:
+                tmp = reduce(lambda x, y: {y: x}, reversed(nests + [value]))
+                log.debug('Reformated key: "%s" to "%s"' % (keys, tmp))
+                formatted_keys.pop(keys, None)
+                formatted_keys.update(tmp)
+
+        return formatted_keys
 
     @staticmethod
     def flatten(container):
