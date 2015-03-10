@@ -47,6 +47,10 @@ class LoaderConfig(Config):
 
     .. attribute:: ckan_mapper
 
+    .. attribute:: validation_sets
+
+        Lists of vocabularies that are used to validate CKAN data
+
     """
     _inbound_dir = None
     _csiro_url_scheme = None
@@ -58,6 +62,7 @@ class LoaderConfig(Config):
     _ckan_path = None
     _ckan_api_key = None
     _ckan_mapper = {}
+    _validation_sets = {}
 
     def __init__(self, config_file=None):
         """:class:`baip_loader.LoaderConfig` initialisation.
@@ -161,6 +166,14 @@ class LoaderConfig(Config):
     def set_ckan_mapper(self, values=None):
         pass
 
+    @property
+    def validation_sets(self):
+        return self._validation_sets
+
+    @set_dict
+    def set_validation_sets(self, values=None):
+        pass
+
     def parse_config(self):
         """Read config items from the configuration file.
 
@@ -199,6 +212,8 @@ class LoaderConfig(Config):
 
         del kwargs[:]
         kwargs = [{'section': 'ckan_mapper',
+                   'is_list': True},
+                  {'section': 'validation_sets',
                    'is_list': True}]
         for kwarg in kwargs:
             self.parse_dict_config(**kwarg)

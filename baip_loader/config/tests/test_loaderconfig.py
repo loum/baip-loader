@@ -93,7 +93,7 @@ class TestLoaderConfig(unittest2.TestCase):
         self.assertEqual(received, expected, msg)
 
     def test_parse_config_ckan_mapper(self):
-        """Parse comms items from the config:ckan_mapper.
+        """Parse items from the baip_loader.Config:ckan_mapper.
         """
         self._conf.set_config_file(self._file)
         self._conf.parse_config()
@@ -118,6 +118,41 @@ class TestLoaderConfig(unittest2.TestCase):
                               'gmd:keyword',
                               'gco:CharacterString')]}
         msg = 'LoaderConfig.ckan_mapper not as expected'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_parse_config_validation_sets(self):
+        """Parse items from the baip_loader.Config:validation_sets.
+        """
+        # Given a defined list of geospatial topics
+        vocab = ['Farming',
+                 'Biota',
+                 'Boundaries',
+                 'Climatology Meteorology and Atmosphere',
+                 'Economy',
+                 'Elevation',
+                 'Environment',
+                 'Geoscientific information',
+                 'Health',
+                 'Imagery base maps and Earth cover',
+                 'Intelligence and Military',
+                 'Inland waters',
+                 'Location',
+                 'Oceans',
+                 'Planning and Cadastre',
+                 'Society',
+                 'Transportation',
+                 'Utilities and Communication']
+
+        # when I enter the list into the geospatial_topic configuration
+        # option
+        self._conf.set_config_file(self._file)
+        self._conf.parse_config()
+        received = self._conf.validation_sets
+
+        # then the values should be available to the baip_loader.Config
+        # module
+        expected = {'geospatial_topics': vocab}
+        msg = 'baip_loader.Config:validation_sets config error'
         self.assertDictEqual(received, expected, msg)
 
     def tearDown(self):
