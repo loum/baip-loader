@@ -8,7 +8,7 @@ from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
 from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
-from baip_loader.tests.results.ckan_sanitised_dates import SANITISED_CKAN
+from baip_loader.tests.results.ckan_sanitised import SANITISED_CKAN
 from baip_loader.tests.results.ckan_reformatted import REFORMATTED_CKAN
 
 
@@ -264,22 +264,22 @@ class TestLoader(unittest2.TestCase):
                              'gmd:CI_Citation',
                              'gmd:title',
                              'gco:CharacterString')],
-                  'description': ['%s|%s|%s|%s' %
-                                  ('gmd:identificationInfo',
-                                   'gmd:MD_DataIdentification',
-                                   'gmd:abstract',
-                                   'gco:CharacterString')]}
+                  'notes': ['%s|%s|%s|%s' %
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:abstract',
+                             'gco:CharacterString')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
         loader.ckan_mapper = levels
         received = loader.iso19115_to_ckan_map(xml_data)
-        # Truncate the long description ...
-        received['description'][0] = received['description'][0][:30] + '...'
+        # Truncate the long notes ...
+        received['notes'][0] = received['notes'][0][:30] + '...'
 
         # then CKAN data should be extracted
         expected = {'title': [u'Victorian Aquifer Framework - Salinity'],
-                    'description': [u'[This data and its metadata st...']}
+                    'notes': [u'[This data and its metadata st...']}
         msg = 'ISO19115 to CKAN map error'
         self.assertDictEqual(received, expected, msg)
 
@@ -966,22 +966,22 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: topic'
         self.assertDictEqual(received, expected, msg)
 
-    def test_iso19115_to_ckan_map_fields_of_research(self):
-        """CSIRO ISO19115 to CKAN map: fields_of_research.
+    def test_iso19115_to_ckan_map_field_of_research(self):
+        """CSIRO ISO19115 to CKAN map: field_of_research.
         """
         # Given a dictionary
         xml_data = ISO19115_ITEM_TEMPORAL
 
         # when the ckan_mapper download_url field is mapped to the
         # ...:EX_Extent.temporalElement ISO19115 element
-        levels = {'fields_of_research': ['%s|%s|%s|%s|%s|%s' %
-                                         ('gmd:identificationInfo',
-                                          'gmd:MD_DataIdentification',
-                                          'gmd:descriptiveKeywords',
-                                          'gmd:MD_Keywords',
-                                          'gmd:keyword',
-                                          'gco:CharacterString'),
-                                         '%s|%s|%s|%s|%s|%s|%s|%s' %
+        levels = {'field_of_research': ['%s|%s|%s|%s|%s|%s' %
+                                        ('gmd:identificationInfo',
+                                         'gmd:MD_DataIdentification',
+                                         'gmd:descriptiveKeywords',
+                                         'gmd:MD_Keywords',
+                                         'gmd:keyword',
+                                         'gco:CharacterString'),
+                                        '%s|%s|%s|%s|%s|%s|%s|%s' %
                                          ('gmd:identificationInfo',
                                           'gmd:MD_DataIdentification',
                                           'gmd:descriptiveKeywords',
@@ -998,9 +998,9 @@ class TestLoader(unittest2.TestCase):
 
         # the the element value should be mapped to the JSON ingest data
         # structure
-        expected = {'fields_of_research': [['Australia'],
-                                           ['ANZLIC Jurisdictions']]}
-        msg = 'ISO19115 to CKAN map error: fields_of_research'
+        expected = {'field_of_research': [['Australia'],
+                                          ['ANZLIC Jurisdictions']]}
+        msg = 'ISO19115 to CKAN map error: field_of_research'
         self.assertDictEqual(received, expected, msg)
 
     def test_iso19115_to_ckan_map_organization_title(self):
@@ -1215,6 +1215,33 @@ class TestLoader(unittest2.TestCase):
         msg = 'ISO19115 to CKAN map error: notes'
         self.assertDictEqual(received, expected, msg)
 
+    def test_iso19115_to_ckan_map_data_state(self):
+        """CSIRO ISO19115 to CKAN map: data_state.
+        """
+        # Given a dictionary
+        xml_data = ISO19115_ITEM
+
+        # when the ckan_mapper contact_point field is mapped to the
+        # ...gmd:status.gmd:MD_ProgressCode.#text
+        # ISO19115 element
+        levels = {'data_state': ['%s|%s|%s|%s|%s' %
+                                 ('gmd:identificationInfo',
+                                  'gmd:MD_DataIdentification',
+                                  'gmd:status',
+                                  'gmd:MD_ProgressCode',
+                                  '#text')]}
+
+        # and I perform a mapping request
+        loader = baip_loader.Loader()
+        loader.ckan_mapper = levels
+        received = loader.iso19115_to_ckan_map(xml_data)
+
+        # the the element value should be mapped to the JSON ingest data
+        # structure
+        expected = {'data_state': ['completed']}
+        msg = 'ISO19115 to CKAN map error: data_state'
+        self.assertDictEqual(received, expected, msg)
+
     def test_sanitise(self):
         """Sanitise CKAN-ready data structure.
         """
@@ -1259,6 +1286,11 @@ class TestLoader(unittest2.TestCase):
         # then I should receive a dictionary of the form
         # {'spatial_coverage': <spatial content>}
         expected = {
+            'spatial': [
+                [
+                    '155.008', '-10.00117', '-45.00362', '110.0012'
+                ],
+            ],
             'spatial_coverage': [
                 [
                     [
@@ -1292,8 +1324,15 @@ class TestLoader(unittest2.TestCase):
         # then I should receive a dictionary of the form
         # {'spatial_coverage': <spatial content>}
         expected = {
+            'spatial': [
+                [
+                    '155.008', '-10.00117', '-45.00362', '110.0012'
+                ],
+            ],
             'spatial_coverage': [
-                '155.008', '-10.00117', '-45.00362', '110.0012',
+                [
+                    '155.008', '-10.00117', '-45.00362', '110.0012',
+                ],
             ]
         }
         msg = 'ISO19115 spatial extraction error: bbox'

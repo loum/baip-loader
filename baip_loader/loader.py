@@ -404,6 +404,25 @@ class Loader(object):
         sanitise_data.clear()
         sanitise_data = spatial_data
 
+        # temporal_coverage_*
+        coverage_from = ckan_data.get('temporal_coverage_from')
+        if coverage_from is not None:
+            sanitise_data['temporal_coverage_from'] = coverage_from[0]
+
+        coverage_to = ckan_data.get('temporal_coverage_to')
+        if coverage_to is not None:
+            sanitise_data['temporal_coverage_to'] = coverage_to[0]
+
+        # revision_id
+        revision_id = ckan_data.get('revision_id')
+        if revision_id is not None:
+            sanitise_data['revision_id'] = revision_id[0]
+
+        # Topic Category
+        topic_category = ckan_data.get('geospatial_topic')
+        if not isinstance(topic_category[0], list):
+            sanitise_data['geospatial_topic'] = [topic_category]
+
         return sanitise_data
 
     @staticmethod
@@ -430,6 +449,25 @@ class Loader(object):
         """
         spatial_reduced_data = dict(ckan_data)
 
+        bbox = [spatial_reduced_data.get('bbox_east'),
+                spatial_reduced_data.get('bbox_north'),
+                spatial_reduced_data.get('bbox_south'),
+                spatial_reduced_data.get('bbox_west')]
+        if None not in bbox:
+            spatial = spatial_reduced_data['spatial'] = [[]]
+            for index in range(0, 4):
+                if (not Loader.empty(bbox[index])):
+                    spatial[0].append(bbox[index][0][0])
+                else:
+                    spatial_reduced_data.pop('spatial', None)
+                    break
+
+            # Set the CKAN ISO19115 spatial field.
+            if spatial_reduced_data.get('spatial') is not None:
+                bbox = spatial
+            else:
+                bbox = None
+
         log.debug('Checking for polygon data ...')
         if (spatial_reduced_data.get('polygon') is not None and
            not Loader.empty(spatial_reduced_data.get('polygon'))):
@@ -438,22 +476,9 @@ class Loader(object):
             log.debug('Polygon data found: %s' % polygon)
         else:
             log.debug('Checking for bounding box data ...')
-            bbox = [spatial_reduced_data.get('bbox_east'),
-                    spatial_reduced_data.get('bbox_north'),
-                    spatial_reduced_data.get('bbox_south'),
-                    spatial_reduced_data.get('bbox_west')]
-            if None not in bbox:
-                spatial = spatial_reduced_data['spatial_coverage'] = []
-                for index in range(0, 4):
-                    if (not Loader.empty(bbox[index])):
-                        spatial.append(bbox[index][0][0])
-                    else:
-                        del spatial[:]
-                        spatial_reduced_data.pop('spatial_coverage', None)
-                        break
-
-                if not Loader.empty(spatial):
-                    log.debug('Bounding box data found: %s' % bbox)
+            if not Loader.empty(spatial):
+                log.debug('Bounding box data found: %s' % bbox)
+                spatial_reduced_data['spatial_coverage'] = bbox
 
         # Remove temporary spatial values.
         for key in ['polygon',
