@@ -949,11 +949,11 @@ class TestLoader(unittest2.TestCase):
 
         # when the ckan_mapper download_url field is mapped to the
         # ...:EX_Extent.temporalElement ISO19115 element
-        levels = {'topic': ['%s|%s|%s|%s' %
-                            ('gmd:identificationInfo',
-                             'gmd:MD_DataIdentification',
-                             'gmd:topicCategory',
-                             'gmd:MD_TopicCategoryCode')]}
+        levels = {'geospatial_topic': ['%s|%s|%s|%s' %
+                                       ('gmd:identificationInfo',
+                                        'gmd:MD_DataIdentification',
+                                        'gmd:topicCategory',
+                                        'gmd:MD_TopicCategoryCode')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
@@ -962,7 +962,7 @@ class TestLoader(unittest2.TestCase):
 
         # the the element value should be mapped to the JSON ingest data
         # structure
-        expected = {'topic': ['environment']}
+        expected = {'geospatial_topic': ['environment']}
         msg = 'ISO19115 to CKAN map error: topic'
         self.assertDictEqual(received, expected, msg)
 
@@ -1391,6 +1391,117 @@ class TestLoader(unittest2.TestCase):
             }
         }
         msg = 'CKAN re-format key error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_validate_string_values(self):
+        """Test CKAN data validation: string values.
+        """
+        # Given a CKAN data structure
+        ckan_data = REFORMATTED_CKAN
+
+        # and a vocabulary set for the publisher validation_sets
+        # configuration set is defined
+        vocab = ['Test',
+                 'geoscience australia']
+        loader = baip_loader.Loader()
+        loader.validation_sets = {'publisher': vocab}
+
+        # and the rule set for the publisher mapper is defined
+        levels = {'publisher': []}
+        loader.ckan_mapper = levels
+
+        # when I validate the publisher CKAN list field
+        received = loader.validate(ckan_data)
+
+        # then the CKAN data structure should be modified to conform to
+        # the  publisher vocabulary
+        expected = REFORMATTED_CKAN
+        expected['publisher'] = 'geoscience australia'
+        msg = 'Validated CKAN data error: list values'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_validate_list_values(self):
+        """Test CKAN data validation: list values.
+        """
+        # Given a CKAN data structure
+        ckan_data = REFORMATTED_CKAN
+
+        # and a vocabulary set for the geospatial_topics validation_sets
+        # configuration set is defined
+        vocab = ['Farming',
+                 'Biota',
+                 'Boundaries',
+                 'Climatology Meteorology and Atmosphere',
+                 'Economy',
+                 'Elevation',
+                 'Environment',
+                 'Geoscientific information',
+                 'Health',
+                 'Imagery base maps and Earth cover',
+                 'Intelligence and Military',
+                 'Inland waters',
+                 'Location',
+                 'Oceans',
+                 'Planning and Cadastre',
+                 'Society',
+                 'Transportation',
+                 'Utilities and Communication']
+        loader = baip_loader.Loader()
+        loader.validation_sets = {'geospatial_topic': vocab}
+
+        # and the rule set for the geospatial_topic mapper is defined
+        levels = {'geospatial_topic': []}
+        loader.ckan_mapper = levels
+
+        # when I validate the geospatial_topic CKAN list field
+        received = loader.validate(ckan_data)
+
+        # then the CKAN data structure should be modified to conform to
+        # the  geospatial_topic vocabulary
+        expected = REFORMATTED_CKAN
+        expected['geospatial_topic'] = ['Environment']
+        msg = 'Validated CKAN data error: list values'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_validate_no_geospatial_sets_vocabulary(self):
+        """Test CKAN data validation: no geospatial_sets vocabulary.
+        """
+        # Given a CKAN data structure
+        ckan_data = REFORMATTED_CKAN
+
+        # and a vocabulary set for the geospatial_topics validation_sets
+        # configuration set is NOT defined
+        vocab = ['Farming',
+                 'Biota',
+                 'Boundaries',
+                 'Climatology Meteorology and Atmosphere',
+                 'Economy',
+                 'Elevation',
+                 'Environment',
+                 'Geoscientific information',
+                 'Health',
+                 'Imagery base maps and Earth cover',
+                 'Intelligence and Military',
+                 'Inland waters',
+                 'Location',
+                 'Oceans',
+                 'Planning and Cadastre',
+                 'Society',
+                 'Transportation',
+                 'Utilities and Communication']
+        loader = baip_loader.Loader()
+        loader.validation_sets = {'geospatial_topic': vocab}
+
+        # and the rule set for the geospatial_topic mapper is defined
+        levels = {}
+        loader.ckan_mapper = levels
+
+        # when I validate the geospatial_topic CKAN field
+        received = loader.validate(ckan_data)
+
+        # then the CKAN data structure should NOT be modified
+        expected = REFORMATTED_CKAN
+        msg = 'Validated CKAN data error'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod

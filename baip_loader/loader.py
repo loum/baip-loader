@@ -25,6 +25,7 @@ class Loader(object):
     _csiro_source_uri = None
     _csiro_source_data = None
     _ckan_mapper = {}
+    _validation_sets = {}
 
     def __init__(self, source_uri=None):
         if source_uri is not None:
@@ -56,6 +57,17 @@ class Loader(object):
 
         if values is not None and isinstance(values, dict):
             self._ckan_mapper = values
+
+    @property
+    def validation_sets(self):
+        return self._validation_sets
+
+    @validation_sets.setter
+    def validation_sets(self, values=None):
+        self._validation_sets.clear()
+
+        if values is not None and isinstance(values, dict):
+            self._validation_sets = values
 
     def source(self, filename=None):
         """Attempt to source CSIRO metadata.
@@ -590,3 +602,49 @@ class Loader(object):
                     yield j
             else:
                 yield i
+
+    def validate(self, ckan_data):
+        """Some extra formatting of *ckan_data* must be occur
+        to fully comply with the CKAN ingest API.  For example, the
+        research fields must align with the list provided by the
+        Australian Bureau of Statistics.
+
+        **Args:**
+            *ckan_data*:
+
+        **Returns:**
+            a fully CKAN ingest compliant data structure.
+
+        """
+        validated_ckan_data = dict(ckan_data)
+
+        for key in self.ckan_mapper.keys():
+            log.debug('Validating field: "%s"' % key)
+
+            if self.validation_sets.get(key) is None:
+                log.debug('Validation set does not exist for "%s"' % key)
+                continue
+
+            validation_set = self.validation_sets.get(key)
+            data = ckan_data.get(key)
+            log.debug('Validation check <key>|<data>: "%s"|"%s"' %
+                      (key, data))
+
+            if isinstance(data, basestring):
+                for validation_set_item in validation_set:
+                    if data.lower() == validation_set_item.lower():
+                        log.debug('Validation match: %s' %
+                                  validation_set_item)
+                        validated_ckan_data[key] = validation_set_item
+            elif isinstance(data, list):
+                data_values = list(data)
+                for item in data:
+                    for validation_set_item in validation_set:
+                        if item.lower() == validation_set_item.lower():
+                            data_values.remove(item)
+                            data_values.append(validation_set_item)
+                            log.debug('Validation match: %s' %
+                                      validation_set_item)
+                validated_ckan_data[key] = data_values
+
+        return validated_ckan_data
