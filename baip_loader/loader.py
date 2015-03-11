@@ -512,14 +512,17 @@ class Loader(object):
 
     @staticmethod
     def reformat(sanitised_ckan_data):
-        """CKAN data formatting should occur after the craziness of the
-        CSIRO XML has passed through :meth:`Loader.sanitise`.
+        """Checks *sanitised_ckan_data* for nested lists of values and
+        makes a best estimate as to whether the values should present
+        to CKAN as a list of values or as a string.
 
         Also invokes the :meth:`reformat_keys` to convert the
         multi-level keys into a nested dictionary structure.
 
-        After being re-formatted, the CKAN data structure is ready for
-        ingest into CKAN.
+        .. note::
+
+            CKAN data formatting should occur after the craziness of the
+            CSIRO XML has passed through :meth:`Loader.sanitise`.
 
         **Args:**
             *sanitised_ckan_data*: the sanitised CKAN data structure
@@ -548,6 +551,20 @@ class Loader(object):
 
         formatted_ckan_keys = dict(formatted_ckan_data)
         formatted_ckan_data = Loader.reformat_keys(formatted_ckan_keys)
+
+        # Probably better to drive this via configuration, but
+        # hard-wiring data reformatting here ...
+        #
+        # Tags.
+        if formatted_ckan_keys.get('tags') is not None:
+            tags = formatted_ckan_keys.get('tags')
+
+            new_tags = []
+            for tag in tags:
+                new_tags.append({'name': tag})
+
+            del formatted_ckan_keys['tags'][:]
+            formatted_ckan_keys['tags'].extend(new_tags)
 
         return formatted_ckan_data
 

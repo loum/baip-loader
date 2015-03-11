@@ -24,6 +24,7 @@ SANITISED_CKAN = {
     'spatial_coverage': [[['110.0012 -10.00117', '115.008 -10.00117', '155.008 -45.00362', '110.0012 -45.00362', '110.0012 -10.00117']]],
     'language': ['eng'],
     'name': ['Dynamic Land Cover Dataset'],
+    'title': ['Dynamic Land Cover Dataset'],
     'tags': ['environment', ['Australia']],
     'extras|telephone': [None],
     'theme': ['environment', ['Australia']],
