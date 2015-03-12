@@ -155,6 +155,24 @@ class TestLoaderConfig(unittest2.TestCase):
         msg = 'baip_loader.Config:validation_sets config error'
         self.assertDictEqual(received, expected, msg)
 
+    def test_parse_config_ckan_defaults(self):
+        """Parse items from the baip_loader.Config:ckan_defaults.
+        """
+        # Given a value for the owner_org default configuration option
+        owner_org = 'c5766f7d-963a-4f30-915e-f1a6f1143301'
+
+        # when I add the option under the ckan_defaults configuration
+        # section
+        self._conf.set_config_file(self._file)
+        self._conf.parse_config()
+        received = self._conf.ckan_defaults
+
+        # then the owner_org values should be available to the
+        # baip_loader.Config module
+        expected = {'owner_org': owner_org}
+        msg = 'baip_loader.Config:ckan_defaults config error'
+        self.assertDictEqual(received, expected, msg)
+
     def tearDown(self):
         self._conf = None
         del self._conf

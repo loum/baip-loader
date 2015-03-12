@@ -21,7 +21,6 @@ REFORMATTED_CKAN = {
     'name': 'Dynamic Land Cover Dataset',
     'title': 'Dynamic Land Cover Dataset',
     'tags': [{'name': 'environment'}, {'name': 'Australia'}],
-    'theme': ['environment', 'Australia'],
     'contact_point': 'landcover@ga.gov.au',
     'data_state': 'completed',
     'date_released': '2015-02-17',
