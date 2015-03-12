@@ -665,3 +665,28 @@ class Loader(object):
                 validated_ckan_data[key] = data_values
 
         return validated_ckan_data
+
+    def add_ckan_defaults(self, ckan_reformatted_data):
+        """Cycles through the :attr:`ckan_defaults` and augments
+        the *ckan_reformatted_data* with the :attr:`ckan_defaults`
+        key value pairs.
+
+        .. note::
+            assumes that *ckan_reformatted_data* has already
+            passed through the :meth:`reformat` method
+
+        **Args:**
+            *ckan_reformatted_data*: the reformatted CKAN data structure
+
+        **Returns:**
+            new augmented dictionary structure between
+            *ckan_reformatted_data* and the :attr:`ckan_defaults`
+
+        """
+        ckan_defaults = dict(ckan_reformatted_data)
+
+        for key, value in self.ckan_defaults.iteritems():
+            log.debug('Added ckan_defaults:%s ' % key)
+            ckan_defaults[key] = value
+
+        return ckan_defaults

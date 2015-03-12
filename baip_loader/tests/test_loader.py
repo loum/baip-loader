@@ -10,6 +10,7 @@ from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITE
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
 from baip_loader.tests.results.ckan_sanitised import SANITISED_CKAN
 from baip_loader.tests.results.ckan_reformatted import REFORMATTED_CKAN
+from baip_loader.tests.results.ckan_defaults import DEFAULTS_CKAN
 
 
 class TestLoader(unittest2.TestCase):
@@ -1502,6 +1503,26 @@ class TestLoader(unittest2.TestCase):
         # then the CKAN data structure should NOT be modified
         expected = REFORMATTED_CKAN
         msg = 'Validated CKAN data error'
+        self.assertDictEqual(received, expected, msg)
+
+    def test_add_ckan_defaults(self):
+        """Test add_ckan_defaults
+        """
+        # Given a reformatted CKAN data structure
+        data = REFORMATTED_CKAN
+
+        # and a set of ckan_defaults are added to the configuration
+        owner_org = 'c5766f7d-963a-4f30-915e-f1a6f1143301'
+        ckan_defaults = {'owner_org': owner_org}
+        loader = baip_loader.Loader()
+        loader.ckan_defaults = ckan_defaults
+
+        # when the ckan_defaults are applied to the CKAN data structure
+        received = loader.add_ckan_defaults(data)
+
+        # then the default values should augment the CKAN data structure
+        expected = DEFAULTS_CKAN
+        msg = 'CKAN defaults augmented data structure error'
         self.assertDictEqual(received, expected, msg)
 
     @classmethod
