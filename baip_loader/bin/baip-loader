@@ -7,7 +7,7 @@ import argparse
 import baip_loader
 
 CONF = os.path.join(os.sep, 'etc', 'baip', 'conf', 'loader.conf')
-DESCRIPTION = """BAIP CSIRO Translation Tool"""
+DESCRIPTION = """BAIP CSIRO Mapper Tool"""
 
 
 def main():
@@ -42,9 +42,9 @@ def main():
                                help=outfile_help,
                                dest='outfile')
 
-    # 'translate' subcommand.
-    xlate_help = 'Translate CSIRO XML to JSON'
-    xlate_parser = subparsers.add_parser('translate', help=xlate_help)
+    # 'map' subcommand.
+    xlate_help = 'Map CSIRO XML to JSON'
+    xlate_parser = subparsers.add_parser('map', help=xlate_help)
     xlate_parser.set_defaults(func=xlate)
 
     infile_help = 'Source XML from filename'
@@ -99,9 +99,9 @@ def scrape(args, conf):
 
 
 def xlate(args, conf):
-    baip_loader.Translator.translate(uri=conf.csiro_uri,
-                                     infile=args.infile,
-                                     outfile=args.outfile)
+    baip_loader.Mapper.xml_to_ckan_map(uri=conf.csiro_uri,
+                                       infile=args.infile,
+                                       outfile=args.outfile)
 
 
 def dump(args, conf):

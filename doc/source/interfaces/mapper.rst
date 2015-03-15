@@ -1,25 +1,25 @@
-.. BAIP Loader Interface: Translator
+.. BAIP Loader Interface: Mapper
 
 .. toctree::
     :maxdepth: 2
 
-.. _translator:
+.. _mapper:
 
-Translator
-==========
+Map
+===
 
-The BAIP Loader ``translator`` context is responsible for converting the
+The BAIP Loader ``map`` context is responsible for converting the
 source CSIRO Metadata XML into JSON.
 
-Translator Workflow
--------------------
+Map Workflow
+------------
 
 .. note::
 
     See :ref:`scraper` on how to source the CSIRO metadata.
 
-CSIRO XML to JSON translation is achieved via the ``baip-loader`` command
-inconjunction with the ``translator`` sub-command.  Translation occurs on
+CSIRO XML to JSON mapping is achieved via the ``baip-loader`` command
+inconjunction with the ``map`` sub-command.  Mapping occurs on
 an XML data source (either via network endpoint or local file)
 
 Configuration
@@ -30,13 +30,13 @@ Configuration
     See :ref:`scraper_configuration` on how to configure the CSIRO
     endpoint
 
-``baip-loader translate`` Usage
+``baip-loader map`` Usage
 -------------------------------
 
 ::
 
-    $ baip-loader translate --help
-    usage: baip-loader translate [-h] [-i INFILE] [-o OUTFILE]
+    $ baip-loader map --help
+    usage: baip-loader map [-h] [-i INFILE] [-o OUTFILE]
     
     optional arguments:
       -h, --help            show this help message and exit

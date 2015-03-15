@@ -5,8 +5,8 @@ import tempfile
 import baip_loader
 
 
-class TestTranslator(unittest2.TestCase):
-    """:class:`baip_loader.Translator` test cases.
+class TestMapper(unittest2.TestCase):
+    """:class:`baip_loader.Mapper` test cases.
     """
     @classmethod
     def setUpClass(cls):
@@ -15,18 +15,18 @@ class TestTranslator(unittest2.TestCase):
         cls._results_dir = os.path.join('baip_loader', 'tests', 'results')
 
     def test_init(self):
-        """Initialise a baip_loader.Translator object.
+        """Initialise a baip_loader.Mapper object.
         """
-        xlator = baip_loader.Translator()
-        msg = 'Object is not a baip_loader.Translator'
-        self.assertIsInstance(xlator, baip_loader.Translator, msg)
+        xlator = baip_loader.Mapper()
+        msg = 'Object is not a baip_loader.Mapper'
+        self.assertIsInstance(xlator, baip_loader.Mapper, msg)
 
-    def test_translate(self):
-        """Translate interface.
+    def test_mapper(self):
+        """Mapper interface.
         """
         # Given I launch the baip-loader tool from the command line with the
-        # translate sub command
-        xlator = baip_loader.Translator()
+        # map sub command
+        xlator = baip_loader.Mapper()
 
         # and the -i or --input-file switch is provided with a CSIRO BAIP
         # XML file name supplied as an argument
@@ -40,9 +40,9 @@ class TestTranslator(unittest2.TestCase):
         tempfile_obj.close()
 
         # then the CSIRO BAIP Metadata should be saved to file as JSON
-        json_filename = baip_loader.Translator.translate(uri=None,
-                                                         infile=source_xml_file,
-                                                         outfile=target_file)
+        json_filename = baip_loader.Mapper.xml_to_ckan_map(uri=None,
+                                                           infile=source_xml_file,
+                                                           outfile=target_file)
 
         json_filename_fh = open(json_filename)
         received = json_filename_fh.read()
@@ -52,7 +52,7 @@ class TestTranslator(unittest2.TestCase):
                                         'baip-meta-single-record.json')
         target_json_obj = open(target_json_file)
         expected = target_json_obj.read().strip()
-        msg = 'Translated JSON output error'
+        msg = 'Mapper CKAN JSON output error'
         self.assertEqual(received, expected, msg)
 
         # Clean up.

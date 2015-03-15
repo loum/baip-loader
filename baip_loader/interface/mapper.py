@@ -1,16 +1,16 @@
 import baip_loader
 from logga.log import log
 
-__all__ = ['Translator']
+__all__ = ['Mapper']
 
 
-class Translator(object):
-    """:class:`baip_loader.Translator`
+class Mapper(object):
+    """:class:`baip_loader.Mapper`
 
     """
     @staticmethod
-    def translate(uri=None, infile=None, outfile=None):
-        """CSIRO XML-based metadata to JSON converter.
+    def xml_to_ckan_map(uri=None, infile=None, outfile=None):
+        """CSIRO XML-based metadata to CKAN JSON map.
 
         **Args:**
             *uri*: the URI of the endpoint to connect and source CSIRO
