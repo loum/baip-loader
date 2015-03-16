@@ -135,42 +135,55 @@ class Loader(object):
 
         return target_file
 
-    def dump_translated(self, filename=None):
-        """Write out the contents of the :attr:`csiro_source_data`
-        to *filename* if not `None` or a temporary file using
-        :mod:`tempfile.NamedTemporaryFile` as JSON.
+    def translate(self):
+        """Extract and translate the source :attr:`csiro_source_data`
+        ISO19115 XML elements to a CKAN ingestable data structure format.
 
-        XML to JSON translation is implied.
-
-        if :attr:`csiro_source_data` is `None` then no attempt to write
+        if :attr:`csiro_source_data` is `None` then no attempt to extract
         will be made.
 
-        **Args:**
-            *filename*: full path of the target file to write to
-
         **Returns:**
-            On write success, the name of the output filename.  ``None``
-            otherwise
+            dictionary structure of the form::
+
+                {<guid_01>: <ckan_ingest_data_01>,
+                 <guid_02>: <ckan_ingest_data_02>, ...}
 
         """
-        file_obj = None
-        target_file = None
+        ckan_data = {}
 
-        if self.csiro_source_data is not None:
-            if filename is None:
-                file_obj = tempfile.NamedTemporaryFile(delete=False)
-            else:
-                file_obj = open(filename, 'w')
-
-            target_file = file_obj.name
-
-            log.info('Writing CSIRO content to {0}'.format(target_file))
-            file_obj.write(self.xml2json(self.csiro_source_data))
-            file_obj.close()
-        else:
+        if self.csiro_source_data is None:
             log.info('Source data not defined -- skipping write')
+        else:
+            xml_as_dict = xmltodict.parse(self.csiro_source_data)
 
-        return target_file
+            # Only interested in the "BaMetadataRecords" element.
+            ba_metadata_records = xml_as_dict.get('BaMetadataRecords')
+            if ba_metadata_records is None:
+                log.error('Unable source BaMetadataRecords root element')
+            else:
+                md_metadata = ba_metadata_records.get('gmd:MD_Metadata')
+                if md_metadata is not None:
+                    log.debug('md_metadata is not None')
+                    if isinstance(md_metadata, dict):
+                        # Fudge value into list so that we can apply a
+                        # single processing logic stream.
+                        md_metadata = [md_metadata]
+
+                    for item in md_metadata:
+                        guid = Loader.extract_guid(item)
+                        if guid is None:
+                            log.warn('Unable to extract GUID')
+                            continue
+
+                        log.debug('Processing GUID: "%s" ...' % guid)
+                        ckan_mapped = self.iso19115_to_ckan_map(item)
+                        ckan_sanitised = self.sanitise(ckan_mapped)
+                        ckan_reformatted = self.reformat(ckan_sanitised)
+                        ckan_validated = self.validate(ckan_reformatted)
+                        ckan_data[guid] = ckan_validated
+                        log.debug('GUID "%s" complete' % guid)
+
+        return ckan_data
 
     def extract_guids(self, xml_data=None, to_json=False):
         """Cycle through the :attr:`csiro_source_data` XML data structure
@@ -262,15 +275,15 @@ class Loader(object):
         return json.dumps(json_data)
 
     @staticmethod
-    def extract_iso19115_field(levels, xml_data):
-        """Recursively drill into *xml_data* dictionary based on the
+    def extract_iso19115_field(levels, csiro_json):
+        """Recursively drill into *csiro_json* dictionary based on the
         number of *levels*.
 
         **Args:**
             *levels*: list of keys used to drill into the nested
             dictionary
 
-            *xml_data*: branch of the ISO19115 dictionary structure
+            *csiro_json*: branch of the ISO19115 dictionary structure
 
         **Returns:**
             On the last call, the dictionary key's value
@@ -281,21 +294,22 @@ class Loader(object):
 
         nest = None
 
-        if isinstance(xml_data, dict):
-            nest = xml_data.get(level)
-        elif isinstance(xml_data, list):
-            nest = [i.get(level) for i in xml_data if isinstance(i, dict)]
+        if isinstance(csiro_json, dict):
+            nest = csiro_json.get(level)
+        elif isinstance(csiro_json, list):
+            nest = [i.get(level) for i in csiro_json if isinstance(i, dict)]
 
         if len(levels) > 0 and nest is not None:
             nest = Loader.extract_iso19115_field(levels, nest)
 
         return nest
 
-    def iso19115_to_ckan_map(self, xml_data):
-        """Pull out the required CKAN fields from the source *xml_data*.
+    def iso19115_to_ckan_map(self, csiro_json_data):
+        """Pull out the required CKAN fields from the source
+        *csiro_json_data*.
 
         **Args:**
-            *xml_data*: the source ISO19115 data (in a dictionary
+            *csiro_json_data*: the source ISO19115 data (in a dictionary
             data structure representation)
 
         **Returns:**
@@ -312,7 +326,7 @@ class Loader(object):
                 log.debug('Nest: %s' % value)
                 levels = value.split('|')
                 field_value = Loader.extract_iso19115_field(levels,
-                                                            xml_data)
+                                                            csiro_json_data)
                 field_values.append(field_value)
 
             ckan_data[key] = field_values
@@ -432,7 +446,8 @@ class Loader(object):
 
         # Topic Category
         topic_category = ckan_data.get('geospatial_topic')
-        if not isinstance(topic_category[0], list):
+        if (topic_category is not None and
+           not isinstance(topic_category[0], list)):
             sanitise_data['geospatial_topic'] = [topic_category]
 
         return sanitise_data
@@ -460,13 +475,13 @@ class Loader(object):
 
         """
         spatial_reduced_data = dict(ckan_data)
+        spatial = spatial_reduced_data['spatial'] = [[]]
 
         bbox = [spatial_reduced_data.get('bbox_east'),
                 spatial_reduced_data.get('bbox_north'),
                 spatial_reduced_data.get('bbox_south'),
                 spatial_reduced_data.get('bbox_west')]
         if None not in bbox:
-            spatial = spatial_reduced_data['spatial'] = [[]]
             for index in range(0, 4):
                 if (not Loader.empty(bbox[index])):
                     spatial[0].append(bbox[index][0][0])
@@ -499,6 +514,10 @@ class Loader(object):
                     'bbox_west',
                     'bbox_south']:
             spatial_reduced_data.pop(key, None)
+
+        # Remove if no data found.
+        if Loader.empty(spatial):
+            spatial_reduced_data.pop('spatial', None)
 
         return spatial_reduced_data
 

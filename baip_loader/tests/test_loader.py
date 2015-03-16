@@ -1,7 +1,6 @@
 import unittest2
 import os
 import json
-import tempfile
 
 import baip_loader
 from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
@@ -63,37 +62,46 @@ class TestLoader(unittest2.TestCase):
         source_xml_obj.close()
         target_json_obj.close()
 
-    def test_dump_translated(self):
-        """XML to JSON translated dump.
+    def test_translate(self):
+        """XML to JSON translate.
         """
         # Given a CSIRO BAIP XML metadata structure
         source_xml_file = os.path.join(self._source_dir,
-                                       'baip-meta-single-record.xml')
-
-        # when an output file name is provided
-        tempfile_obj = tempfile.NamedTemporaryFile()
-        target_file = tempfile_obj.name
-        tempfile_obj.close()
-
-        # and I convert to JSON
+                                       'baip-meta-multiple-records.xml')
         loader = baip_loader.Loader()
         loader.source(filename=source_xml_file)
-        json_filename = loader.dump_translated(filename=target_file)
 
-        # then the CSIRO BAIP JSON Metadata should be saved to file
-        json_fh = open(json_filename)
-        received = json_fh.read().strip()
-        json_fh = None
+        # and a simple CKAN mapper definition
+        levels = {'title': ['%s|%s|%s|%s|%s|%s' %
+                            ('gmd:identificationInfo',
+                             'gmd:MD_DataIdentification',
+                             'gmd:citation',
+                             'gmd:CI_Citation',
+                             'gmd:title',
+                             'gco:CharacterString')]}
+        loader.ckan_mapper = levels
 
-        target_json_file = os.path.join(self._results_dir,
-                                        'baip-meta-single-record.json')
-        target_json_obj = open(target_json_file)
-        expected = target_json_obj.read().strip()
-        msg = 'Translated JSON output error'
-        self.assertEqual(received, expected, msg)
+        # when I map to CKAN data.gov.au JSON structure
+        received = loader.translate()
 
-        # Clean up.
-        os.remove(target_file)
+        # then the CSIRO XML input should translated to a CKAN data map
+        # of the form {<guid>: <ckan_ingest_data>}
+        expected = {
+            '6968B11F-9912-42CA-8536-00CDE75E75D9': {
+                'title': u'Asset list for Galilee - CURRENT'
+            },
+            '457ED79A-C6DF-4AAF-A480-00926E48CAA8': {
+                'title': u'CLM - Logan-Albert catchment boundary'
+            },
+            '6151C409-0CAF-4727-9F57-00F6B71A58FB': {
+                'title': u'Layer 05-07 Great Artesian Basin base of Algebuckina Sandstone surface (GABWRA)'
+            },
+            '781A8B81-93B8-4CDE-9B56-00291D7543EA': {
+                'title': u'GLO Catchments Water Source Boundaries'
+            }
+        }
+        msg = 'Translated CKAN data error'
+        self.assertDictEqual(received, expected, msg)
 
     def test_extract_multiple_guids(self):
         """Extract multiple GUID.
