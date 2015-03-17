@@ -81,6 +81,10 @@ class TestLoader(unittest2.TestCase):
                              'gco:CharacterString')]}
         loader.ckan_mapper = levels
 
+        # and a simple defaults definition
+        defaults = {'test': 'default'}
+        loader.ckan_defaults = defaults
+
         # when I map to CKAN data.gov.au JSON structure
         received = loader.translate()
 
@@ -88,15 +92,19 @@ class TestLoader(unittest2.TestCase):
         # of the form {<guid>: <ckan_ingest_data>}
         expected = {
             '6968B11F-9912-42CA-8536-00CDE75E75D9': {
+                'test': 'default',
                 'title': u'Asset list for Galilee - CURRENT'
             },
             '457ED79A-C6DF-4AAF-A480-00926E48CAA8': {
+                'test': 'default',
                 'title': u'CLM - Logan-Albert catchment boundary'
             },
             '6151C409-0CAF-4727-9F57-00F6B71A58FB': {
+                'test': 'default',
                 'title': u'Layer 05-07 Great Artesian Basin base of Algebuckina Sandstone surface (GABWRA)'
             },
             '781A8B81-93B8-4CDE-9B56-00291D7543EA': {
+                'test': 'default',
                 'title': u'GLO Catchments Water Source Boundaries'
             }
         }

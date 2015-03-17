@@ -21,11 +21,14 @@ class Loader(object):
 
     .. attribute:: ckan_mapper
 
+    .. attribute:: ckan_defaults
+
     """
     _csiro_source_uri = None
     _csiro_source_data = None
     _ckan_mapper = {}
     _validation_sets = {}
+    _ckan_defaults = {}
 
     def __init__(self, source_uri=None):
         if source_uri is not None:
@@ -68,6 +71,17 @@ class Loader(object):
 
         if values is not None and isinstance(values, dict):
             self._validation_sets = values
+
+    @property
+    def ckan_defaults(self):
+        return self._ckan_defaults
+
+    @ckan_defaults.setter
+    def ckan_defaults(self, values=None):
+        self._ckan_defaults.clear()
+
+        if values is not None and isinstance(values, dict):
+            self._ckan_defaults = values
 
     def source(self, filename=None):
         """Attempt to source CSIRO metadata.
@@ -180,7 +194,8 @@ class Loader(object):
                         ckan_sanitised = self.sanitise(ckan_mapped)
                         ckan_reformatted = self.reformat(ckan_sanitised)
                         ckan_validated = self.validate(ckan_reformatted)
-                        ckan_data[guid] = ckan_validated
+                        ckan = self.add_ckan_defaults(ckan_validated)
+                        ckan_data[guid] = ckan
                         log.debug('GUID "%s" complete' % guid)
 
         return ckan_data
@@ -553,6 +568,9 @@ class Loader(object):
         formatted_ckan_data = dict(sanitised_ckan_data)
 
         for field, value in sanitised_ckan_data.iteritems():
+            if value is None:
+                continue
+
             nested = False
             if not any(isinstance(el, list) for el in value):
                 # This is a single item.
@@ -702,10 +720,10 @@ class Loader(object):
             *ckan_reformatted_data* and the :attr:`ckan_defaults`
 
         """
-        ckan_defaults = dict(ckan_reformatted_data)
+        ckan_data = dict(ckan_reformatted_data)
 
         for key, value in self.ckan_defaults.iteritems():
             log.debug('Added ckan_defaults:%s ' % key)
-            ckan_defaults[key] = value
+            ckan_data[key] = value
 
-        return ckan_defaults
+        return ckan_data
