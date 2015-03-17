@@ -54,13 +54,6 @@ def main():
                               help=infile_help,
                               dest='infile')
 
-    outfile_help = 'Override output filename'
-    xlate_parser.add_argument('-o',
-                              '--outfile',
-                              action='store',
-                              help=outfile_help,
-                              dest='outfile')
-
     # 'dump' subcommand.
     dump_help = 'Dump CSIRO XML as individual JSON files'
     dump_parser = subparsers.add_parser('dump', help=dump_help)
@@ -99,9 +92,10 @@ def scrape(args, conf):
 
 
 def xlate(args, conf):
-    baip_loader.Mapper.xml_to_ckan_map(uri=conf.csiro_uri,
-                                       infile=args.infile,
-                                       outfile=args.outfile)
+    mapper = baip_loader.Mapper(target_dir=conf.inbound_dir)
+    mapper.loader.ckan_mapper = conf.ckan_mapper
+    mapper.loader.ckan_defaults = conf.ckan_defaults
+    mapper.xml_to_ckan_map(uri=conf.csiro_uri, infile=args.infile)
 
 
 def dump(args, conf):
