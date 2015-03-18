@@ -22,7 +22,7 @@ The following diagram describes the interfaces at a high-level:
    :alt: BAIP Loader overview
 
 The BAIP Loader tool is a command line utility, ``baip-loader`` that
-manages the workflow via the :ref:`scraper`, :ref:`translator` and
+manages the workflow via the :ref:`scraper`, :ref:`mapper` and
 :ref:`dumper` subcommands.
 
 Indices and tables

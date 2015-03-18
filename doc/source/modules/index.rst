@@ -8,6 +8,6 @@ Modules
 
    loader.rst
    loader-config.rst
-   interface-translator.rst
+   interface-mapper.rst
    interface-dump.rst
    interface-ingester.rst
