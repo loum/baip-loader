@@ -1,0 +1,45 @@
+{
+    "owner_org": "c5766f7d-963a-4f30-915e-f1a6f1143301", 
+    "tags": [
+        {
+            "name": "inlandWaters"
+        }, 
+        {
+            "name": "Victoria"
+        }
+    ], 
+    "date_updated": "2015-02-10", 
+    "temporal_coverage_to": null, 
+    "temporal_coverage_from": null, 
+    "geospatial_topic": [
+        "inlandWaters"
+    ], 
+    "revision_id": "Version 2.1", 
+    "organization": {
+        "title": "VIC - Department of Environment and Primary Industries"
+    }, 
+    "id": "DD006FCE-BEF5-4377-82AE-2C5A14B50E34", 
+    "metadata_created": "2014-10-24", 
+    "publisher": "VIC - Department of Environment and Primary Industries", 
+    "name": "Victorian Aquifer Framework - Salinity", 
+    "language": "eng", 
+    "field_of_research": [
+        "Victoria"
+    ], 
+    "notes": "[This data and its metadata statement were supplied to the Bioregional Assessment Programme by a third part and are presented here as originally supplied.]\n\nThis is the master metadata record for the Victorian Aquifer Framework (VAF) 3D Surfaces dataset. For information on each aquifer surface, please refer to the separate metadata record.\n\nDEPI originally engaged GHD to develop seamless 3D aquifer surfaces for the Victorian Aquifer Framework (VAF). The seamless mapping of aquifers across the state provides the fundamental framework for groundwater resource management, underpins development of a revised management structure for Victoria (the Secure Allocation Future Entitlement project funded by the National Water Commission) and contributes to the data needs of the Bureau of Meteorology National Groundwater Information System (NGIS). \n\nThe original dataset was produced by GHD in 2012 using (in part) data provided by Southern Rural Water Corporation and Goulburn-Murray Water Corporation. It has been subsequently amended by Hocking et al and SKM in 2013.", 
+    "metadata_modified": "2015-02-10", 
+    "extras": {
+        "telephone": "86362385"
+    }, 
+    "spatial": [
+        "1", 
+        "-", 
+        "-", 
+        "1"
+    ], 
+    "data_state": "completed", 
+    "title": "Victorian Aquifer Framework - Salinity", 
+    "contact_point": "data.vsdl@depi.vic.gov.au", 
+    "date_released": "2014-10-24", 
+    "update_freq": "asNeeded"
+}
