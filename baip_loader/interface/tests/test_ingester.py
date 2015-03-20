@@ -113,7 +113,7 @@ class TestIngester(unittest2.TestCase):
         scheme = 'http'
         netloc = 'test.ddg.lws.links.com.au'
         path = '/api/action/package_create'
-        ingester.csiro_uri = '{0}://{1}{2}'.format(scheme, netloc, path)
+        ingester.ckan_uri = '{0}://{1}{2}'.format(scheme, netloc, path)
 
         # when I attempt a CKAN dataset ingest
         received = ingester.ingest(ckan_json, dry=True)

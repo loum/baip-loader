@@ -18,7 +18,7 @@ class Ingester(object):
     """
     _source_dir = None
     _api_key = None
-    _csiro_uri = None
+    _ckan_uri = None
 
     def __init__(self, source_dir=None):
         if source_dir is not None:
@@ -41,12 +41,12 @@ class Ingester(object):
         self._api_key = value
 
     @property
-    def csiro_uri(self):
-        return self._csiro_uri
+    def ckan_uri(self):
+        return self._ckan_uri
 
-    @csiro_uri.setter
-    def csiro_uri(self, value):
-        self._csiro_uri = value
+    @ckan_uri.setter
+    def ckan_uri(self, value):
+        self._ckan_uri = value
 
     def source_files(self, file_filter=None):
         """Checks :attr:`source_dir` for valid CKAN JSON files.
@@ -92,8 +92,8 @@ class Ingester(object):
 
         data_string = urllib.quote(ckan_json)
 
-        log.debug('Preparing request to "%s"' % self.csiro_uri)
-        request = urllib2.Request(self.csiro_uri)
+        log.debug('Preparing request to "%s"' % self.ckan_uri)
+        request = urllib2.Request(self.ckan_uri)
         request.add_header('Authorization', self.api_key)
 
         status = True

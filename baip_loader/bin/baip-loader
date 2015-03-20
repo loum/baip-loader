@@ -66,6 +66,26 @@ def main():
                              help=infile_help,
                              dest='infile')
 
+    # 'ingest' sub-command
+    ingest_help = 'Ingest CKAN JSON files'
+    ingest_parser = subparsers.add_parser('ingest', help=ingest_help)
+    ingest_parser.set_defaults(func=ingest)
+
+    infile_help = 'Source XML from filename'
+    ingest_parser.add_argument('-i',
+                               '--input-file',
+                               action='store',
+                               help=infile_help,
+                               dest='infile')
+
+    dry_help = 'Ingest dry pass'
+    ingest_parser.add_argument('-d',
+                               '--dry',
+                               action='store_true',
+                               help=dry_help,
+                               dest='dry')
+
+    # Prepare the argument list and config.
     args = parser.parse_args()
 
     config_file = args.config_file
@@ -103,6 +123,22 @@ def dump(args, conf):
     dumper.target_dir = conf.inbound_dir
     dumper.dump(uri=conf.ckan_uri, infile=args.infile)
 
+
+def ingest(args, conf):
+    ingester = baip_loader.Ingester(conf.inbound_dir)
+    ingester.api_key = conf.ckan_api_key
+    ingester.ckan_uri = conf.ckan_uri
+
+    files_to_process = []
+    if args.infile is not None:
+        files_to_process.append(args.infile)
+    else:
+        files_to_process = ingester.source_files(file_filter='.*\.json')
+
+    for file_to_process in files_to_process:
+        with open(file_to_process, 'r') as json_fh:
+            json_data = json_fh.read()
+            ingester.ingest(json_data, args.dry)
 
 if __name__ == '__main__':
     main()
