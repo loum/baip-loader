@@ -999,14 +999,14 @@ class TestLoader(unittest2.TestCase):
                                          'gmd:keyword',
                                          'gco:CharacterString'),
                                         '%s|%s|%s|%s|%s|%s|%s|%s' %
-                                         ('gmd:identificationInfo',
-                                          'gmd:MD_DataIdentification',
-                                          'gmd:descriptiveKeywords',
-                                          'gmd:MD_Keywords',
-                                          'gmd:thesaurusName',
-                                          'gmd:CI_Citation',
-                                          'gmd:title',
-                                          'gco:CharacterString')]}
+                                        ('gmd:identificationInfo',
+                                         'gmd:MD_DataIdentification',
+                                         'gmd:descriptiveKeywords',
+                                         'gmd:MD_Keywords',
+                                         'gmd:thesaurusName',
+                                         'gmd:CI_Citation',
+                                         'gmd:title',
+                                         'gco:CharacterString')]}
 
         # and I perform a mapping request
         loader = baip_loader.Loader()
@@ -1303,22 +1303,8 @@ class TestLoader(unittest2.TestCase):
         # then I should receive a dictionary of the form
         # {'spatial_coverage': <spatial content>}
         expected = {
-            'spatial': [
-                [
-                    '155.008', '-10.00117', '-45.00362', '110.0012'
-                ],
-            ],
-            'spatial_coverage': [
-                [
-                    [
-                        '110.0012 -10.00117',
-                        '115.008 -10.00117',
-                        '155.008 -45.00362',
-                        '110.0012 -45.00362',
-                        '110.0012 -10.00117'
-                    ]
-                ]
-            ]
+            'spatial': '{"type": "Polygon", "coordinates": [[[110.0012, -10.00117], [115.008, -10.00117], [155.00800000000001, -45.003619999999998], [110.0012, -45.003619999999998], [110.0012, -10.00117]]]}',
+            'spatial_coverage': 'POLYGON ((110.0012 -10.00117, 115.008 -10.00117, 155.008 -45.00362, 110.0012 -45.00362, 110.0012 -10.00117))',
         }
         msg = 'ISO19115 spatial extraction error: polygon'
         self.assertDictEqual(received, expected, msg)
@@ -1341,16 +1327,7 @@ class TestLoader(unittest2.TestCase):
         # then I should receive a dictionary of the form
         # {'spatial_coverage': <spatial content>}
         expected = {
-            'spatial': [
-                [
-                    '155.008', '-10.00117', '-45.00362', '110.0012'
-                ],
-            ],
-            'spatial_coverage': [
-                [
-                    '155.008', '-10.00117', '-45.00362', '110.0012',
-                ],
-            ]
+            'spatial': '{"type": "Feature", "bbox": [155.00800000000001, -10.00117, -45.003619999999998, 110.0012]}',
         }
         msg = 'ISO19115 spatial extraction error: bbox'
         self.assertDictEqual(received, expected, msg)
@@ -1540,6 +1517,93 @@ class TestLoader(unittest2.TestCase):
         expected = DEFAULTS_CKAN
         msg = 'CKAN defaults augmented data structure error'
         self.assertDictEqual(received, expected, msg)
+
+    def test_geojson_to_wkt(self):
+        """GeoJSON to WKT.
+        """
+        # Given a GeoJSON data structure
+        geojson = {
+            'type': 'Polygon',
+            'coordinates': [
+                [
+                    [110.0012, -10.00117],
+                    [115.008, -10.00117],
+                    [155.008, -45.00362],
+                    [110.0012, -45.00362],
+                    [110.0012, -10.00117],
+                ],
+            ],
+        }
+
+        # when I perform a GeoJSON to WKT conversion
+        received = baip_loader.Loader.geojson_to_wkt(geojson)
+
+        # then I should receive a WKT string
+        expected = """POLYGON ((110.0012 -10.00117, 115.008 -10.00117, 155.008 -45.00362, 110.0012 -45.00362, 110.0012 -10.00117))"""
+        msg = 'GeoJSON to WKT error'
+        self.assertEqual(received, expected, msg)
+
+    def test_reformat_polygon(self):
+        """Reformat an ISO19115 polygon to GeoJSON.
+        """
+        # Given an ISO19115 formatted polygon
+        iso_19115_polygon = [
+            [
+                [
+                    '110.0012 -10.00117',
+                    '115.008 -10.00117',
+                    '155.008 -45.00362',
+                    '110.0012 -45.00362',
+                    '110.0012 -10.00117'
+                ],
+            ],
+        ]
+
+        # when I attempt to reformat to GeoJSON
+        received = baip_loader.Loader.reformat_polygon(iso_19115_polygon)
+
+        # then I should receive a GeoJSON data structure
+        expected = {
+            'type': 'Polygon',
+            'coordinates': [
+                [
+                    [110.0012, -10.00117],
+                    [115.008, -10.00117],
+                    [155.008, -45.00362],
+                    [110.0012, -45.00362],
+                    [110.0012, -10.00117],
+                ],
+            ],
+        }
+        msg = 'Reformatted ISO19115 to GeoJSON polygon error'
+        self.assertDictEqual(expected, received, msg)
+
+    def test_reformat_bbox(self):
+        """Reformat an ISO19115 bounding box to GeoJSON.
+        """
+        # Given an ISO19115 formatted bounding box
+        iso_19115_bbox = [
+            '155.008',
+            '-10.00117',
+            '-45.00362',
+            '110.0012'
+        ]
+
+        # when I attempt to reformat to GeoJSON
+        received = baip_loader.Loader.reformat_bbox(iso_19115_bbox)
+
+        # then I should receive a GeoJSON data structure
+        expected = {
+            'type': 'Feature',
+            'bbox': [
+                155.008,
+                -10.00117,
+                -45.00362,
+                110.0012
+            ],
+        }
+        msg = 'Reformatted ISO19115 to GeoJSON bbox error'
+        self.assertDictEqual(expected, received, msg)
 
     @classmethod
     def tearDownClass(cls):

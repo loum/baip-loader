@@ -2,6 +2,8 @@ import urllib2
 import tempfile
 import xmltodict
 import json
+import geojson
+import shapely.geometry
 
 from logga.log import log
 
@@ -481,6 +483,21 @@ class Loader(object):
         At this time, the method supports polygons and bounding boxes
         with polygons having precedence over bounding boxes.
 
+        .. note::
+
+            You may note in the CKAN interface that spatial
+            data is referenced as ``spatial`` and ``spatial_coverage``.
+
+            * ``spatial`` is the data used to build the `<data.gov.au>`_
+              ISO19115 spatial information.  This data must be presented
+              as GeoJSON (see `GeoJSON validation rules
+              <http://geojsonlint.com/>`_)
+
+            * ``spatial_coverage`` is used by the `<data.gov.au>`_
+              interface's spatial sub-system (if the plugin is enabled).
+              This is used by `<data.gov.au>`_ for spatial queries and
+              visualisations.  This data must be presented in WKT format
+
         **Args:**
             *ckan_data*:
 
@@ -490,7 +507,7 @@ class Loader(object):
 
         """
         spatial_reduced_data = dict(ckan_data)
-        spatial = spatial_reduced_data['spatial'] = [[]]
+        spatial = spatial_reduced_data['spatial'] = []
 
         bbox = [spatial_reduced_data.get('bbox_east'),
                 spatial_reduced_data.get('bbox_north'),
@@ -499,28 +516,34 @@ class Loader(object):
         if None not in bbox:
             for index in range(0, 4):
                 if (not Loader.empty(bbox[index])):
-                    spatial[0].append(bbox[index][0][0])
+                    spatial.append(bbox[index][0][0])
                 else:
                     spatial_reduced_data.pop('spatial', None)
                     break
 
             # Set the CKAN ISO19115 spatial field.
+            bbox = None
             if spatial_reduced_data.get('spatial') is not None:
                 bbox = spatial
-            else:
-                bbox = None
 
         log.debug('Checking for polygon data ...')
         if (spatial_reduced_data.get('polygon') is not None and
            not Loader.empty(spatial_reduced_data.get('polygon'))):
             polygon = spatial_reduced_data['polygon']
-            spatial_reduced_data['spatial_coverage'] = polygon
             log.debug('Polygon data found: %s' % polygon)
+
+            geojson_polygon = Loader.reformat_polygon(polygon)
+            wkt_polygon = Loader.geojson_to_wkt(geojson_polygon)
+
+            spatial_reduced_data['spatial'] = json.dumps(geojson_polygon)
+            spatial_reduced_data['spatial_coverage'] = wkt_polygon
         else:
             log.debug('Checking for bounding box data ...')
             if not Loader.empty(spatial):
-                log.debug('Bounding box data found: %s' % bbox)
-                spatial_reduced_data['spatial_coverage'] = bbox
+                geojson_bbox = Loader.reformat_bbox(bbox)
+                log.debug('Bounding box data found: %s' %
+                          json.dumps(geojson_bbox))
+                spatial_reduced_data['spatial'] = json.dumps(geojson_bbox)
 
         # Remove temporary spatial values.
         for key in ['polygon',
@@ -727,3 +750,94 @@ class Loader(object):
             ckan_data[key] = value
 
         return ckan_data
+
+    @staticmethod
+    def geojson_to_wkt(geo):
+        """Simple helper method to convert geospatial *geo* to WKT.
+
+        **Args:**
+            *geo*: source GeoJSON to convert
+
+        **Returns:**
+            WKT representation of GeoJSON source
+
+        """
+        log.debug('GeoJSON %s to WKT conversion ...' % json.dumps(geo))
+
+        geo_json = geojson.loads(json.dumps(geo))
+
+        geo_shape = shapely.geometry.shape(geo_json)
+        log.debug('WKT result: %s' % geo_shape.wkt)
+
+        return geo_shape.wkt
+
+    @staticmethod
+    def reformat_polygon(polygon):
+        """Reformat the ISO19115 polygon to GeoJSON.
+
+        **Args:**
+            *polygon*: nested list structure of the form::
+
+                [[['110.0012 -10.00117', '115.008 -10.00117', ...]]]
+
+        **Returns:**
+            GeoJSON representation of the polygon.  For example::
+
+                {
+                    'type': 'Polygon',
+                    'coordinates': [
+                        [
+                            [110.0012, -10.00117],
+                            [115.008, -10.00117],
+                            [155.008, -45.00362],
+                            [110.0012, -45.00362],
+                            [110.0012, -10.00117],
+                        ],
+                    ],
+                }
+
+        """
+        log.debug('Converting ISO19115 polygon %s to GeoJSON ...' % polygon)
+        geo_json = {
+            'type': 'Polygon',
+            'coordinates': [
+                    [[float(c) for c in p.split()] for p in polygon[0][0]],
+            ]
+        }
+
+        log.debug('Resultant GeoJSON polygon: %s' % geo_json)
+
+        return geo_json
+
+    @staticmethod
+    def reformat_bbox(bbox):
+        """Reformat the ISO19115 bounding box to GeoJSON.
+
+        **Args:**
+            *bbox*: list structure of the form::
+
+                ['155.008', '-10.00117', '-45.00362', '110.0012']
+
+        **Returns:**
+            GeoJSON representation of the bounding box.  For example::
+
+                {
+                    'type': 'Feature',
+                    'bbox': [
+                        155.008,
+                        -10.00117,
+                        -45.00362,
+                        110.0012
+                    ],
+                }
+
+        """
+        log.debug('Converting ISO19115 bbox %s to GeoJSON ...' % bbox)
+        geo_json = {
+            'type': 'Feature',
+            'bbox': [float(p) for p in bbox],
+        }
+
+        log.debug('Resultant GeoJSON bbox: %s' % geo_json)
+
+        return geo_json
