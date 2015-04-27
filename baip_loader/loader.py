@@ -7,7 +7,6 @@ import shapely.geometry
 
 from logga.log import log
 
-
 __all__ = ["Loader"]
 
 
@@ -532,11 +531,13 @@ class Loader(object):
             polygon = spatial_reduced_data['polygon']
             log.debug('Polygon data found: %s' % polygon)
 
-            geojson_polygon = Loader.reformat_polygon(polygon)
-            wkt_polygon = Loader.geojson_to_wkt(geojson_polygon)
+            geojson_polygon = wkt_polygon = None
+            if polygon[0] is not None:
+                geojson_polygon = Loader.reformat_polygon(polygon)
+                wkt_polygon = Loader.geojson_to_wkt(geojson_polygon)
 
-            spatial_reduced_data['spatial'] = json.dumps(geojson_polygon)
-            spatial_reduced_data['spatial_coverage'] = wkt_polygon
+                spatial_reduced_data['spatial'] = json.dumps(geojson_polygon)
+                spatial_reduced_data['spatial_coverage'] = wkt_polygon
         else:
             log.debug('Checking for bounding box data ...')
             if not Loader.empty(spatial):
