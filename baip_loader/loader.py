@@ -105,6 +105,7 @@ class Loader(object):
         source = filename
         if source is None:
             source = self.csiro_source_uri
+            log.debug('Connecting to "%s"' % source)
             url_obj = urllib2.urlopen(self.csiro_source_uri)
             self.csiro_source_data = url_obj.read()
         else:
@@ -598,7 +599,7 @@ class Loader(object):
             nested = False
             if not any(isinstance(el, list) for el in value):
                 # This is a single item.
-                if isinstance(value, list):
+                if isinstance(value, list) and len(value):
                     if value[0] is None:
                         formatted_ckan_data.pop(field, None)
                     else:
@@ -695,6 +696,14 @@ class Loader(object):
 
         """
         validated_ckan_data = dict(ckan_data)
+
+        # CKAN name field must be all lower case.
+        name_field = validated_ckan_data.get('name')
+        if name_field is not None:
+            log.debug('CKAN name field found: "%s"' % name_field)
+            validated_ckan_data['name'] = name_field.lower()
+            log.debug('CKAN name field converted to: "%s"' %
+                      validated_ckan_data['name'])
 
         for key in self.ckan_mapper.keys():
             log.debug('Validating field: "%s"' % key)

@@ -86,7 +86,7 @@ class Mapper(object):
         if self.target_dir is not None:
             target_path = os.path.join(self.target_dir, target_path)
 
-        log.debug('Writing out GUID "%s"' % guid)
+        log.debug('Writing out GUID to target path "%s"' % target_path)
         target_fh = open(target_path, 'w')
         target_fh.write(json.dumps(data, indent=4))
         target_fh.close()

@@ -103,17 +103,20 @@ def main():
 
 
 def scrape(args, conf):
-    scraper = baip_loader.Loader()
-    scraper.csiro_source_uri = conf.csiro_uri
+    loader = baip_loader.Loader()
+    loader.csiro_source_uri = conf.csiro_uri
 
-    scraper.source(filename=args.infile)
+    loader.source(filename=args.infile)
     if args.outfile is not None:
-        scraper.dump_source(args.outfile)
+        loader.dump_source(args.outfile)
+    else:
+        loader.dump_source('csiro_metadata.xml')
 
 
 def xlate(args, conf):
     mapper = baip_loader.Mapper(target_dir=conf.inbound_dir)
     mapper.loader.ckan_mapper = conf.ckan_mapper
+    mapper.loader.validation_sets = conf.validation_sets
     mapper.loader.ckan_defaults = conf.ckan_defaults
     mapper.xml_to_ckan_map(uri=conf.csiro_uri, infile=args.infile)
 

@@ -1,4 +1,4 @@
-MAP_ALL_FIELDS = {
+MAP_ALL_FIELDS_PRE_VALIDATE = {
     'bbox_east': [['155.008']],
     'bbox_north': [['-10.00117']],
     'bbox_south': [['-45.00362']],
@@ -76,7 +76,7 @@ MAP_ALL_FIELDS = {
     'temporal_coverage_from': [['2000-04-01T00:04:00']],
     'temporal_coverage_to': [['2008-04-01T23:04:00']],
     'title': ['Dynamic Land Cover Dataset'],
-    'name': ['dynamic land cover dataset'],
+    'name': ['Dynamic Land Cover Dataset'],
     'geospatial_topic': ['environment'],
     'update_freq': [None],
     'organization|title': ['Geoscience Australia'],

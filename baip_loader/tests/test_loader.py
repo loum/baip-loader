@@ -7,6 +7,7 @@ from baip_loader.tests.files.iso19115_single_record import ISO19115_ITEM
 from baip_loader.tests.files.iso19115_single_record_url import ISO19115_ITEM_URL
 from baip_loader.tests.files.iso19115_single_record_temporal import ISO19115_ITEM_TEMPORAL
 from baip_loader.tests.results.iso19115_to_ckan_map_all_fields import MAP_ALL_FIELDS
+from baip_loader.tests.results.iso19115_to_ckan_map_all_fields_pre_validate import MAP_ALL_FIELDS_PRE_VALIDATE
 from baip_loader.tests.results.ckan_sanitised import SANITISED_CKAN
 from baip_loader.tests.results.ckan_reformatted import REFORMATTED_CKAN
 from baip_loader.tests.results.ckan_defaults import DEFAULTS_CKAN
@@ -1171,7 +1172,7 @@ class TestLoader(unittest2.TestCase):
 
         # the ISO19115 values should be mapped to the CKAN ingest
         # data structure
-        expected = MAP_ALL_FIELDS
+        expected = MAP_ALL_FIELDS_PRE_VALIDATE
         msg = 'ISO19115 dates extraction error'
         self.assertDictEqual(received, expected, msg)
 

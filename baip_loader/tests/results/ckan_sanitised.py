@@ -23,7 +23,7 @@ SANITISED_CKAN = {
     'spatial': '{"type": "Polygon", "coordinates": [[[110.0012, -10.00117], [115.008, -10.00117], [155.00800000000001, -45.003619999999998], [110.0012, -45.003619999999998], [110.0012, -10.00117]]]}',
     'spatial_coverage': 'POLYGON ((110.0012 -10.00117, 115.008 -10.00117, 155.008 -45.00362, 110.0012 -45.00362, 110.0012 -10.00117))',
     'language': ['eng'],
-    'name': ['Dynamic Land Cover Dataset'],
+    'name': ['dynamic land cover dataset'],
     'title': ['Dynamic Land Cover Dataset'],
     'tags': ['environment', ['Australia']],
     'extras|telephone': [None],

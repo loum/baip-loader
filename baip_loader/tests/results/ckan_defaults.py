@@ -12,7 +12,7 @@ DEFAULTS_CKAN = {
     'spatial_coverage': 'POLYGON ((110.0012 -10.00117, 115.008 -10.00117, 155.008 -45.00362, 110.0012 -45.00362, 110.0012 -10.00117))',
     'language': 'eng',
     'metadata_modified': '2015-02-17',
-    'name': 'Dynamic Land Cover Dataset',
+    'name': 'dynamic land cover dataset',
     'title': 'Dynamic Land Cover Dataset',
     'tags': [{'name': 'environment'}, {'name': 'Australia'}],
     'contact_point': 'landcover@ga.gov.au',
