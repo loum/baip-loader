@@ -66,6 +66,5 @@ setup(name='python-baip-loader',
       url='',
       scripts=['baip_loader/bin/baip-loader'],
       packages=['baip_loader',
-                'baip_loader.config',
-                'baip_loader.daemon'],
+                'baip_loader.config'],
       package_data={'baip_loader': ['conf/*.conf.[0-9]*.[0-9]*.[0-9]*']})
